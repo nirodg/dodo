@@ -46,11 +46,11 @@ public abstract class AbstractRestServiceBean<ENTITY extends AbstractModel, DTO 
         return getService().deleteByGuid(guid);
     }
 
-    private ENTITY mapEntity(DTO dto) {
+    public ENTITY mapEntity(DTO dto) {
         return getMapper().mapEntity(dto);
     }
 
-    private DTO mapDTO(ENTITY entity) {
+    public DTO mapDTO(ENTITY entity) {
         return getMapper().mapDTO(entity);
     }
 
