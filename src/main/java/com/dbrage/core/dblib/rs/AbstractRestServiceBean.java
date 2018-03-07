@@ -20,7 +20,7 @@ public abstract class AbstractRestServiceBean<ENTITY extends AbstractModel, DTO 
     @Override
     public List<DTO> getAll() {
         List<ENTITY> data = getService().getAll();
-        return getMapper().mapDTOs(data);
+        return getMapper().findDTOs(data);
     }
 
     @Override
@@ -47,11 +47,11 @@ public abstract class AbstractRestServiceBean<ENTITY extends AbstractModel, DTO 
     }
 
     public ENTITY mapEntity(DTO dto) {
-        return getMapper().mapEntity(dto);
+        return getMapper().find(dto);
     }
 
     public DTO mapDTO(ENTITY entity) {
-        return getMapper().mapDTO(entity);
+        return getMapper().find(entity);
     }
 
     public abstract AbstractService<ENTITY, DTO> getService();

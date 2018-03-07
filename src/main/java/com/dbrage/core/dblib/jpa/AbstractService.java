@@ -5,7 +5,9 @@
  */
 package com.dbrage.core.dblib.jpa;
 
+import com.dbrage.core.dblib.jpa.enums.JpaErrorKeys;
 import com.dbrage.core.dblib.jpa.mapper.AbstractModelMapper;
+import com.dbrage.core.dblib.jpa.utils.JpaLog;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +18,13 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
@@ -46,7 +50,7 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
     protected List<Predicate> predicates = new ArrayList<>();
 
     @PostConstruct
-    public void initialize() {
+    private void initialize() {
 
         entityClass = (Class<ENTITY>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         dtoClass = (Class<DTO>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
@@ -91,15 +95,20 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
     }
 
     public List<ENTITY> getAll() {
-        return null;
+        Query query = entityManager.createNamedQuery(entityClass.getSimpleName() + ".findAll");
+        return query.getResultList();
     }
 
     public EntityManager getEntityManager() {
         return entityManager;
     }
 
-    public void addPredicate(Predicate predicate) {
-        getPredicates().add(predicate);
+    public void addEqualsPredicate(SingularAttribute sa, Object o) {
+        addEqualsPredicate(root, sa, o);
+    }
+
+    public void addEqualsPredicate(Root root, SingularAttribute sa, Object o) {
+        getPredicates().add(cb.equal(root.get(sa), o));
     }
 
     public void initializePredicates() {
@@ -127,7 +136,12 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
             // fetch
         }
         typedQuery = entityManager.createQuery(cq);
-        return typedQuery.getSingleResult();
+
+        try {
+            return typedQuery.getSingleResult();
+        } catch (Exception e) {
+            return (ENTITY) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, null);
+        }
     }
 
     public List<ENTITY> getResults(boolean load) {
@@ -139,6 +153,11 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
             // fetch
         }
         typedQuery = entityManager.createQuery(cq);
-        return typedQuery.getResultList();
+
+        try {
+            return typedQuery.getResultList();
+        } catch (Exception e) {
+            return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, new ArrayList<>());
+        }
     }
 }
