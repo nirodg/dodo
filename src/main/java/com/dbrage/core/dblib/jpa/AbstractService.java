@@ -8,6 +8,7 @@ package com.dbrage.core.dblib.jpa;
 import com.dbrage.core.dblib.jpa.enums.JpaErrorKeys;
 import com.dbrage.core.dblib.jpa.mapper.AbstractModelMapper;
 import com.dbrage.core.dblib.jpa.utils.JpaLog;
+import com.dbrage.core.dblib.jpa.utils.QueryParams;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
@@ -50,7 +52,7 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
     protected List<Predicate> predicates = new ArrayList<>();
 
     @PostConstruct
-    private void initialize() {
+    protected void initialize() {
 
         entityClass = (Class<ENTITY>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         dtoClass = (Class<DTO>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
@@ -62,16 +64,34 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
 
     public abstract AbstractModelMapper getMapper();
 
+    /**
+     * Create a new ENTITY
+     * @param object the ENTITY to be persisted
+     * @return the object
+     */
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public ENTITY create(ENTITY object) {
         entityManager.persist(object);
         return object;
     }
 
+    /**
+     * Find an entity by it's GUID
+     *
+     * @param guid the GUID
+     * @return the ENTITY object
+     */
     public ENTITY findByGuid(String guid) {
         return entityManager.find(entityClass, guid);
     }
 
+    /**
+     * Update the entity
+     *
+     * @param guid
+     * @param dto
+     * @return
+     */
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public ENTITY updateByGuid(String guid, DTO dto) {
         ENTITY objectToUpdate = findByGuid(guid);
@@ -82,6 +102,12 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
         return null;
     }
 
+    /**
+     * Delete an entity by it's GUID
+     *
+     * @param guid the GUID
+     * @return TRUE if the entity is deleted, otherwise FALSE
+     */
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean deleteByGuid(String guid) {
         try {
@@ -94,6 +120,11 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
         }
     }
 
+    /**
+     * Get all entities using namedQuery
+     *
+     * @return return a list of entities
+     */
     public List<ENTITY> getAll() {
         Query query = entityManager.createNamedQuery(entityClass.getSimpleName() + ".findAll");
         return query.getResultList();
@@ -103,12 +134,24 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
         return entityManager;
     }
 
-    public void addEqualsPredicate(SingularAttribute sa, Object o) {
-        addEqualsPredicate(root, sa, o);
+    public void addEqualsPredicate(SingularAttribute attribute, Object value) {
+        addEqualsPredicate(root, attribute, value);
     }
 
-    public void addEqualsPredicate(Root root, SingularAttribute sa, Object o) {
-        getPredicates().add(cb.equal(root.get(sa), o));
+    /* FIXME Bad query*/
+    @Deprecated
+    public void addEqualsPredicate(Root<?> root, SingularAttribute attribute, Object value) {
+        if (value != null) {
+            getPredicates().add(cb.equal(root.get(attribute), value));
+        }
+    }
+
+    /* FIXME Bad query*/
+    @Deprecated
+    public void addEqualsPredicate(Join<?, ?> join, SingularAttribute<?, ?> attribute, Object value) {
+        if (value != null) {
+            getPredicates().add(cb.equal(join.get(attribute.getName()), value));
+        }
     }
 
     public void initializePredicates() {
@@ -127,6 +170,12 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
         return root;
     }
 
+    /**
+     * Get a single entity using Predicates
+     *
+     * @param load if TRUE it fetches all complex objects, otherwise does LAZY fetch
+     * @return a single entity
+     */
     public ENTITY getSingleResult(boolean load) {
         if (!predicates.isEmpty()) {
             cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
@@ -144,6 +193,29 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
         }
     }
 
+    /**
+     * Get a single entity using a namedQuery
+     *
+     * @param namedQuery the name of the query
+     * @param parameters the QueryParams object
+     * @return a list of entities
+     */
+    public ENTITY getSingleResult(String namedQuery, QueryParams parameters) {
+        Query query = createQueryParam(namedQuery, parameters);
+        try {
+            return (ENTITY) query.getSingleResult();
+        } catch (Exception e) {
+            JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, null);
+        }
+        return null;
+    }
+
+    /**
+     * Get a list of entities using Predicates
+     *
+     * @param load if TRUE it fetches all complex objects, otherwise does LAZY fetch
+     * @return a list of entities
+     */
     public List<ENTITY> getResults(boolean load) {
         if (!predicates.isEmpty()) {
             cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
@@ -159,5 +231,45 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
         } catch (Exception e) {
             return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, new ArrayList<>());
         }
+    }
+
+    /**
+     * Get a list of entities using a namedQuery
+     *
+     * @param namedQuery the name of the query
+     * @param parameters the QueryParams object
+     * @return a list of entities
+     */
+    public List<ENTITY> getResults(String namedQuery, QueryParams parameters) {
+        Query query = createQueryParam(namedQuery, parameters);
+
+        try {
+            return (List<ENTITY>) query.getResultList();
+        } catch (Exception e) {
+            return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, new ArrayList<>());
+        }
+
+    }
+
+    /**
+     * Create the QueryParam
+     *
+     * @param namedQuery the name of the query
+     * @param parameters the QueryParams object
+     * @return a Query object
+     */
+    protected Query createQueryParam(String namedQuery, QueryParams parameters) {
+        if (namedQuery != null && parameters != null) {
+
+            Query query = getEntityManager().createNamedQuery(entityClass.getSimpleName() + "." + namedQuery);
+            parameters.getParams().forEach((key, value) -> {
+                if (value != null) {
+                    query.setParameter(key, value);
+                }
+            });
+            return query;
+        }
+
+        return null;
     }
 }
