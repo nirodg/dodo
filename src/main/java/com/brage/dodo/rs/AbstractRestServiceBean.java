@@ -32,7 +32,7 @@ import com.brage.dodo.jpa.mapper.AbstractModelMapper;
  * 
  * @author Dorin Brage
  */
-public abstract class AbstractRestServiceBean<ENTITY extends AbstractModel, DTO extends AbstractDTOModel, SERVICE extends AbstractService<ENTITY, DTO>, MAPPER extends AbstractModelMapper<ENTITY, DTO>>
+public abstract class AbstractRestServiceBean<ENTITY extends AbstractModel, DTO extends AbstractDTOModel, SERVICE extends AbstractService<ENTITY>, MAPPER extends AbstractModelMapper<ENTITY, DTO>>
     implements AbstractRestService<DTO> {
 
   private Logger LOG = LoggerFactory.getLogger(AbstractRestServiceBean.class);
@@ -58,7 +58,7 @@ public abstract class AbstractRestServiceBean<ENTITY extends AbstractModel, DTO 
 
   @Override
   public DTO updateByGuid(String guid, DTO entity) {
-    ENTITY data = service.updateByGuid(guid, entity);
+    ENTITY data = service.updateByGuid(guid, mapper.find(entity));
     return mapDTO(data);
   }
 

@@ -37,7 +37,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import com.brage.dodo.jpa.enums.JpaErrorKeys;
-import com.brage.dodo.jpa.mapper.AbstractModelMapper;
 import com.brage.dodo.jpa.utils.JpaLog;
 import com.brage.dodo.jpa.utils.QueryParams;
 
@@ -47,7 +46,7 @@ import com.brage.dodo.jpa.utils.QueryParams;
  * @param <ENTITY> the ENTITY
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends AbstractDTOModel> {
+public abstract class AbstractService<ENTITY extends AbstractModel> {
 
   private static final Logger LOG = Logger.getLogger(AbstractService.class.getName());
 
@@ -60,7 +59,6 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
   protected TypedQuery<ENTITY> typedQuery;
 
   Class<ENTITY> entityClass;
-  Class<DTO> dtoClass;
 
   protected List<Predicate> predicates = new ArrayList<>();
 
@@ -69,15 +67,11 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
 
     entityClass = (Class<ENTITY>) ((ParameterizedType) getClass().getGenericSuperclass())
         .getActualTypeArguments()[0];
-    dtoClass = (Class<DTO>) ((ParameterizedType) getClass().getGenericSuperclass())
-        .getActualTypeArguments()[1];
 
     cb = entityManager.getCriteriaBuilder();
     cq = cb.createQuery(entityClass);
     root = cq.from(entityClass);
   }
-
-  public abstract AbstractModelMapper getMapper();
 
   /**
    * Create a new ENTITY
@@ -109,10 +103,9 @@ public abstract class AbstractService<ENTITY extends AbstractModel, DTO extends 
    * @return
    */
   @TransactionAttribute(TransactionAttributeType.REQUIRED)
-  public ENTITY updateByGuid(String guid, DTO dto) {
+  public ENTITY updateByGuid(String guid, ENTITY entity) {
     ENTITY objectToUpdate = findByGuid(guid);
     if (objectToUpdate != null) {
-      getMapper().updateEntity(dto, objectToUpdate);
       return create(objectToUpdate);
     }
     return null;
