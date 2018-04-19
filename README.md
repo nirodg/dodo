@@ -134,3 +134,16 @@ public class CarRestServiceBean extends AbstractRestServiceBean<Car, CarDTO> imp
 }
 
 ```
+
+# Versioning
+
+[SemVer](http://semver.org/) will be used for versioning because it provides a clear documentation. For the versions available, see the [tags on this repository](https://github.com/nirodg/dodo/releases).
+
+# Contribute
+
+In case you would like to contribute updating the documentation, improving the functionalities, reporting issues or fixing them please, you\`re more than welcome 😄 . However, please have a look to the already defined [contribute](/docs/CONTRIBUTING.md)'s guide
+
+# License
+
+[MIT](http://showalicense.com/?year=2017&fullname=Dorin%20Gheorghe%20Brage#license-mit) © [Dorin Brage](https://github.com/nirodg/)
+
