@@ -1,71 +1,96 @@
 /*******************************************************************************
  * Copyright 2018 Dorin Brage
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), 
- * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
- * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS 
- * OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
 package com.brage.dodo.rs;
 
 import java.util.List;
-
+import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.brage.dodo.jpa.AbstractDTOModel;
 import com.brage.dodo.jpa.AbstractModel;
 import com.brage.dodo.jpa.AbstractService;
 import com.brage.dodo.jpa.mapper.AbstractModelMapper;
 
 /**
- *
+ * The abstract rest service bean class
+ * 
  * @author Dorin Brage
  */
-public abstract class AbstractRestServiceBean<ENTITY extends AbstractModel, DTO extends AbstractDTOModel> implements AbstractRestService<DTO> {
+public abstract class AbstractRestServiceBean<ENTITY extends AbstractModel, DTO extends AbstractDTOModel, SERVICE extends AbstractService<ENTITY, DTO>, MAPPER extends AbstractModelMapper<ENTITY, DTO>>
+    implements AbstractRestService<DTO> {
 
-    @Override
-    public List<DTO> getAll() {
-        List<ENTITY> data = getService().getAll();
-        return getMapper().findDTOs(data);
-    }
+  private Logger LOG = LoggerFactory.getLogger(AbstractRestServiceBean.class);
 
-    @Override
-    public DTO create(DTO entity) {
-        ENTITY data = mapEntity(entity);
-        return mapDTO(getService().create(data));
-    }
+  @Inject
+  private SERVICE service;
 
-    @Override
-    public DTO updateByGuid(String guid, DTO entity) {
-        ENTITY data = getService().updateByGuid(guid, entity);
-        return mapDTO(data);
-    }
+  @Inject
+  private MAPPER mapper;
 
-    @Override
-    public DTO getByGuid(String guid) {
-        ENTITY data = getService().findByGuid(guid);
-        return mapDTO(data);
-    }
+  @Override
+  public List<DTO> getAll() {
+    LOG.info("calling getAll()");
+    List<ENTITY> data = service.getAll();
+    return mapper.findDTOs(data);
+  }
 
-    @Override
-    public boolean deleteByGuid(String guid) {
-        return getService().deleteByGuid(guid);
-    }
+  @Override
+  public DTO create(DTO entity) {
+    ENTITY data = mapEntity(entity);
+    return mapDTO(service.create(data));
+  }
 
-    public ENTITY mapEntity(DTO dto) {
-        return getMapper().find(dto);
-    }
+  @Override
+  public DTO updateByGuid(String guid, DTO entity) {
+    ENTITY data = service.updateByGuid(guid, entity);
+    return mapDTO(data);
+  }
 
-    public DTO mapDTO(ENTITY entity) {
-        return getMapper().find(entity);
-    }
+  @Override
+  public DTO getByGuid(String guid) {
+    ENTITY data = service.findByGuid(guid);
+    return mapDTO(data);
+  }
 
-    public abstract AbstractService<ENTITY, DTO> getService();
+  @Override
+  public boolean deleteByGuid(String guid) {
+    return service.deleteByGuid(guid);
+  }
 
-    public abstract AbstractModelMapper<ENTITY, DTO> getMapper();
+  public ENTITY mapEntity(DTO dto) {
+    return mapper.find(dto);
+  }
+
+  public DTO mapDTO(ENTITY entity) {
+    return mapper.find(entity);
+  }
+
+  protected SERVICE getService() {
+    return service;
+  }
+
+  protected MAPPER getMapper() {
+    return mapper;
+  }
+
+  protected Logger getLogger() {
+    return LOG;
+  }
 
 }
