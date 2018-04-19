@@ -1,0 +1,7 @@
+com.brage.dodo.i18n
+com.brage.dodo.jpa
+com.brage.dodo.jpa.enums
+com.brage.dodo.jpa.mapper
+com.brage.dodo.jpa.mapper.qualifiers
+com.brage.dodo.jpa.utils
+com.brage.dodo.rs
