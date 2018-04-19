@@ -68,14 +68,6 @@ import com.brage.dodo.jpa.AbstractService;
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class CarService extends AbstractService<Car, CarDTO> {
 
-  @Inject
-  private CarMapper mapper;
-
-  @Override
-  public AbstractModelMapper getMapper() {
-      return mapper;
-  }
-
   public Car getByLicensePlate(String licensePlate) {
       initializePredicates();
       addEqualsPredicate(Car_.licensePlate, licensePlate);
@@ -86,12 +78,13 @@ public class CarService extends AbstractService<Car, CarDTO> {
 ```
 
 # The API
+Remember to define the (@ApplicationPath)[https://docs.oracle.com/cd/E24329_01/web.1211/e24983/configure.htm#RESTF189]
 
 ```java
 // imports
 import com.brage.dodo.rs.AbstractRestService;
 
-@Path(EndpointPaths.CARS)
+@Path("/cars")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface CarRestService extends AbstractRestService<CarDTO> {
@@ -102,6 +95,8 @@ public interface CarRestService extends AbstractRestService<CarDTO> {
     
 }
 ```
+
+For more information regarding Jax-RS please check the (Oracle's documentation)[https://docs.oracle.com/javaee/7/tutorial/jaxrs002.htm]
 
 # The Rest Service
 ```java
