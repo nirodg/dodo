@@ -111,29 +111,14 @@ import com.brage.dodo.rs.AbstractRestServiceBean;
 @Stateless
 @Local(CarRestService.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class CarRestServiceBean extends AbstractRestServiceBean<Car, CarDTO> implements CarRestService {
-
-
-    @EJB
-    private CarService service;
-
-    @Inject
-    private CarMapper mapper;
-    
-    @Override
-    public AbstractModelMapper getMapper() {
-        return mapper;
-    }
-
-    @Override
-    public AbstractService getService() {
-        return service;
-    }
+public class CarRestServiceBean extends AbstractRestServiceBean<Car, CarDTO, CarService, CarMapper> implements CarRestService {
 
     @Override
     public CarDTO getByLicensePlate(String licensePlate) {
-        Car car = service.getByLicensePlate(licensePlate);
-        return mapper.find(car);
+         getLogger().info("getByLicensePlate({})", licensePlate);
+
+         Car car = getService().getByLicensePlate(licensePlate);
+         return getMapper().find(car);
     }
 
 }
