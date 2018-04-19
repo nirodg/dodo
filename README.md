@@ -1,6 +1,8 @@
 # dodo
 mini framework with JEE technologies
 
+For the showcase please [click here](https://github.com/nirodg/dodo-example/)
+
 # Defining the entity
 ```java
 // imports
