@@ -3,6 +3,9 @@ mini framework with JEE technologies
 
 For the showcase please [click here](https://github.com/nirodg/dodo-example/)
 
+# Maven
+`mvn clean install`
+
 # Defining the entity
 ```java
 // imports
