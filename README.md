@@ -53,6 +53,7 @@ public class CarDTO extends AbstractDTOModel {
 // imports
 import com.brage.dodo.jpa.mapper.AbstractModelMapper;
 
+@Mapper(componentModel = "cdi")
 public abstract class CarMapper extends AbstractModelMapper<Car, CarDTO> {
 
      // override method if needed
