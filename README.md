@@ -78,7 +78,7 @@ public class CarService extends AbstractService<Car, CarDTO> {
 ```
 
 # The API
-Remember to define the (@ApplicationPath)[https://docs.oracle.com/cd/E24329_01/web.1211/e24983/configure.htm#RESTF189]
+Remember to define the [@ApplicationPath](https://docs.oracle.com/cd/E24329_01/web.1211/e24983/configure.htm#RESTF189)
 
 ```java
 // imports
@@ -96,7 +96,7 @@ public interface CarRestService extends AbstractRestService<CarDTO> {
 }
 ```
 
-For more information regarding Jax-RS please check the (Oracle's documentation)[https://docs.oracle.com/javaee/7/tutorial/jaxrs002.htm]
+For more information regarding Jax-RS please check the [Oracle's documentation](https://docs.oracle.com/javaee/7/tutorial/jaxrs002.htm)
 
 # The Rest Service
 ```java
