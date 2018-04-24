@@ -22,7 +22,7 @@ import java.util.List;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.MappingTarget;
 import com.brage.dodo.jpa.AbstractDTOModel;
-import com.brage.dodo.jpa.AbstractModel;
+import com.brage.dodo.jpa.Model;
 import com.brage.dodo.jpa.mapper.qualifiers.LoadEntity;
 
 /**
@@ -32,7 +32,7 @@ import com.brage.dodo.jpa.mapper.qualifiers.LoadEntity;
  * @param <DTO>
  */
 @MapperConfig(componentModel = "cdi")
-public abstract class AbstractModelMapper<Entity extends AbstractModel, DTO extends AbstractDTOModel> {
+public abstract class AbstractModelMapper<Entity extends Model, DTO extends AbstractDTOModel> {
 
   public abstract Entity find(DTO entity);
 

@@ -32,10 +32,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.SingularAttribute;
 import com.brage.dodo.jpa.enums.JpaErrorKeys;
 import com.brage.dodo.jpa.utils.JpaLog;
 import com.brage.dodo.jpa.utils.QueryParams;
@@ -46,7 +43,7 @@ import com.brage.dodo.jpa.utils.QueryParams;
  * @param <ENTITY> the ENTITY
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractService<ENTITY extends AbstractModel> {
+public abstract class AbstractService<ENTITY extends Model> {
 
   private static final Logger LOG = Logger.getLogger(AbstractService.class.getName());
 
@@ -59,8 +56,6 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
   protected TypedQuery<ENTITY> typedQuery;
 
   Class<ENTITY> entityClass;
-
-  protected List<Predicate> predicates = new ArrayList<>();
 
   @PostConstruct
   protected void initialize() {
@@ -143,33 +138,26 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
     return entityManager;
   }
 
-  public void addEqualsPredicate(SingularAttribute attribute, Object value) {
-    addEqualsPredicate(root, attribute, value);
-  }
-
-  /* FIXME Bad query */
-  @Deprecated
-  public void addEqualsPredicate(Root<?> root, SingularAttribute attribute, Object value) {
-    if (value != null) {
-      getPredicates().add(cb.equal(root.get(attribute), value));
-    }
-  }
-
-  /* FIXME Bad query */
-  @Deprecated
-  public void addEqualsPredicate(Join<?, ?> join, SingularAttribute<?, ?> attribute, Object value) {
-    if (value != null) {
-      getPredicates().add(cb.equal(join.get(attribute.getName()), value));
-    }
-  }
-
-  public void initializePredicates() {
-    predicates = new ArrayList<>();
-  }
-
-  public List<Predicate> getPredicates() {
-    return predicates;
-  }
+  // public void addEqualsPredicate(SingularAttribute attribute, Object value) {
+  // addEqualsPredicate(root, attribute, value);
+  // }
+  //
+  // /* FIXME Bad query */
+  // @Deprecated
+  // public void addEqualsPredicate(Root<?> root, SingularAttribute attribute, Object value) {
+  // if (value != null) {
+  // getPredicates().add(cb.equal(root.get(attribute), value));
+  // }
+  // }
+  //
+  // /* FIXME Bad query */
+  // @Deprecated
+  // public void addEqualsPredicate(Join<?, ?> join, SingularAttribute<?, ?> attribute, Object
+  // value) {
+  // if (value != null) {
+  // getPredicates().add(cb.equal(join.get(attribute.getName()), value));
+  // }
+  // }
 
   public CriteriaBuilder getCB() {
     return cb;
@@ -177,29 +165,6 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
 
   public Root<ENTITY> getRoot() {
     return root;
-  }
-
-  /**
-   * Get a single entity using Predicates
-   *
-   * @param load if TRUE it fetches all complex objects, otherwise does LAZY fetch
-   * @return a single entity
-   */
-  public ENTITY getSingleResult(boolean load) {
-    if (!predicates.isEmpty()) {
-      cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-    }
-
-    if (load) {
-      // fetch
-    }
-    typedQuery = entityManager.createQuery(cq);
-
-    try {
-      return typedQuery.getSingleResult();
-    } catch (Exception e) {
-      return (ENTITY) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, null);
-    }
   }
 
   /**
@@ -217,30 +182,6 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
       JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, null);
     }
     return null;
-  }
-
-  /**
-   * Get a list of entities using Predicates
-   *
-   * @param load if TRUE it fetches all complex objects, otherwise does LAZY fetch
-   * @return a list of entities
-   */
-  public List<ENTITY> getResults(boolean load) {
-    if (!predicates.isEmpty()) {
-      cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-    }
-
-    if (load) {
-      // fetch
-    }
-    typedQuery = entityManager.createQuery(cq);
-
-    try {
-      return typedQuery.getResultList();
-    } catch (Exception e) {
-      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES,
-          new ArrayList<>());
-    }
   }
 
   /**

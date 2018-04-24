@@ -34,7 +34,7 @@ import javax.persistence.TemporalType;
  * @author Dorin Brage
  */
 @MappedSuperclass
-public class AbstractModel implements Serializable {
+public abstract class Model implements Serializable {
 
   private static final long serialVersionUID = 7195951657243537422L;
 
