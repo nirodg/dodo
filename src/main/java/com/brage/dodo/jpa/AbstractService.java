@@ -140,27 +140,6 @@ public abstract class AbstractService<ENTITY extends Model> {
     return entityManager;
   }
 
-  // public void addEqualsPredicate(SingularAttribute attribute, Object value) {
-  // addEqualsPredicate(root, attribute, value);
-  // }
-  //
-  // /* FIXME Bad query */
-  // @Deprecated
-  // public void addEqualsPredicate(Root<?> root, SingularAttribute attribute, Object value) {
-  // if (value != null) {
-  // getPredicates().add(cb.equal(root.get(attribute), value));
-  // }
-  // }
-  //
-  // /* FIXME Bad query */
-  // @Deprecated
-  // public void addEqualsPredicate(Join<?, ?> join, SingularAttribute<?, ?> attribute, Object
-  // value) {
-  // if (value != null) {
-  // getPredicates().add(cb.equal(join.get(attribute.getName()), value));
-  // }
-  // }
-
   public CriteriaBuilder getCB() {
     return cb;
   }
@@ -203,6 +182,24 @@ public abstract class AbstractService<ENTITY extends Model> {
           new ArrayList<>());
     }
 
+  }
+
+  /**
+   * Get total nr. of items
+   * 
+   * <pre>
+   * SELECT COUNT(c) FROM Car c
+   * </pre>
+   * 
+   * @return
+   */
+  public long getCount() {
+
+    String entityName = entityClass.getSimpleName().toLowerCase();
+    Query query = entityManager.createQuery(
+        "SELECT COUNT(" + entityName + ") FROM " + entityClass.getSimpleName() + " " + entityName);
+
+    return (long) query.getSingleResult();
   }
 
   /**
