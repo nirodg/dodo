@@ -557,7 +557,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date value
    * @return this
    */
-  public Finder<ENTITY> lessOrEqualsThan(SingularAttribute<ENTITY, Date> attribute, Date value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Date> attribute, Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (Date) value));
     }
@@ -575,7 +575,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the integer value
    * @return this
    */
-  public Finder<ENTITY> lessOrEqualsThan(SingularAttribute<ENTITY, Integer> attribute, int value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Integer> attribute, int value) {
     if (attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (int) value));
     }
@@ -593,7 +593,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the double value
    * @return this
    */
-  public Finder<ENTITY> lessOrEqualsThan(SingularAttribute<ENTITY, Double> attribute,
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Double> attribute,
       double value) {
     if (attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (double) value));
@@ -612,7 +612,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the float value
    * @return this
    */
-  public Finder<ENTITY> lessOrEqualsThan(SingularAttribute<ENTITY, Float> attribute, float value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Float> attribute, float value) {
     if (attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (float) value));
     }
@@ -630,7 +630,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the long value
    * @return this
    */
-  public Finder<ENTITY> lessOrEqualsThan(SingularAttribute<ENTITY, Long> attribute, long value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Long> attribute, long value) {
     if (attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (long) value));
     }
