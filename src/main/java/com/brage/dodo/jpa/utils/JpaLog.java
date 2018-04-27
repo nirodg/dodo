@@ -18,8 +18,7 @@
  *******************************************************************************/
 package com.brage.dodo.jpa.utils;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 /**
  *
@@ -28,7 +27,7 @@ import java.util.logging.Logger;
 public class JpaLog {
 
   public static Object info(Logger log, Enum key, Object type) {
-    log.log(Level.WARNING, key.name());
+    log.info("Error happened {}:{}", key, type);
     return type;
   }
 }

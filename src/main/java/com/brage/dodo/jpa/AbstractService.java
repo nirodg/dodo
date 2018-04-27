@@ -20,9 +20,9 @@ package com.brage.dodo.jpa;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -32,10 +32,9 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.SingularAttribute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.brage.dodo.jpa.enums.JpaErrorKeys;
 import com.brage.dodo.jpa.utils.JpaLog;
 import com.brage.dodo.jpa.utils.QueryParams;
@@ -46,9 +45,9 @@ import com.brage.dodo.jpa.utils.QueryParams;
  * @param <ENTITY> the ENTITY
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractService<ENTITY extends AbstractModel> {
+public abstract class AbstractService<ENTITY extends Model> {
 
-  private static final Logger LOG = Logger.getLogger(AbstractService.class.getName());
+  private Logger LOG = LoggerFactory.getLogger(AbstractService.class);
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -59,8 +58,6 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
   protected TypedQuery<ENTITY> typedQuery;
 
   Class<ENTITY> entityClass;
-
-  protected List<Predicate> predicates = new ArrayList<>();
 
   @PostConstruct
   protected void initialize() {
@@ -124,7 +121,7 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
       entityManager.remove(toDelete);
       return true;
     } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Couldn't delete the entity {}", e.getMessage());
+      LOG.error("Couldn't delete the entity {}", e.getMessage());
       return false;
     }
   }
@@ -134,41 +131,13 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
    *
    * @return return a list of entities
    */
-  public List<ENTITY> getAll() {
+  public Set<ENTITY> getAll() {
     Query query = entityManager.createNamedQuery(entityClass.getSimpleName() + ".findAll");
-    return query.getResultList();
+    return new HashSet<>(query.getResultList());
   }
 
   public EntityManager getEntityManager() {
     return entityManager;
-  }
-
-  public void addEqualsPredicate(SingularAttribute attribute, Object value) {
-    addEqualsPredicate(root, attribute, value);
-  }
-
-  /* FIXME Bad query */
-  @Deprecated
-  public void addEqualsPredicate(Root<?> root, SingularAttribute attribute, Object value) {
-    if (value != null) {
-      getPredicates().add(cb.equal(root.get(attribute), value));
-    }
-  }
-
-  /* FIXME Bad query */
-  @Deprecated
-  public void addEqualsPredicate(Join<?, ?> join, SingularAttribute<?, ?> attribute, Object value) {
-    if (value != null) {
-      getPredicates().add(cb.equal(join.get(attribute.getName()), value));
-    }
-  }
-
-  public void initializePredicates() {
-    predicates = new ArrayList<>();
-  }
-
-  public List<Predicate> getPredicates() {
-    return predicates;
   }
 
   public CriteriaBuilder getCB() {
@@ -177,29 +146,6 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
 
   public Root<ENTITY> getRoot() {
     return root;
-  }
-
-  /**
-   * Get a single entity using Predicates
-   *
-   * @param load if TRUE it fetches all complex objects, otherwise does LAZY fetch
-   * @return a single entity
-   */
-  public ENTITY getSingleResult(boolean load) {
-    if (!predicates.isEmpty()) {
-      cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-    }
-
-    if (load) {
-      // fetch
-    }
-    typedQuery = entityManager.createQuery(cq);
-
-    try {
-      return typedQuery.getSingleResult();
-    } catch (Exception e) {
-      return (ENTITY) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, null);
-    }
   }
 
   /**
@@ -220,30 +166,6 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
   }
 
   /**
-   * Get a list of entities using Predicates
-   *
-   * @param load if TRUE it fetches all complex objects, otherwise does LAZY fetch
-   * @return a list of entities
-   */
-  public List<ENTITY> getResults(boolean load) {
-    if (!predicates.isEmpty()) {
-      cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
-    }
-
-    if (load) {
-      // fetch
-    }
-    typedQuery = entityManager.createQuery(cq);
-
-    try {
-      return typedQuery.getResultList();
-    } catch (Exception e) {
-      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES,
-          new ArrayList<>());
-    }
-  }
-
-  /**
    * Get a list of entities using a namedQuery
    *
    * @param namedQuery the name of the query
@@ -260,6 +182,24 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
           new ArrayList<>());
     }
 
+  }
+
+  /**
+   * Get total nr. of items
+   * 
+   * <pre>
+   * SELECT COUNT(c) FROM Car c
+   * </pre>
+   * 
+   * @return
+   */
+  public long getCount() {
+
+    String entityName = entityClass.getSimpleName().toLowerCase();
+    Query query = entityManager.createQuery(
+        "SELECT COUNT(" + entityName + ") FROM " + entityClass.getSimpleName() + " " + entityName);
+
+    return (long) query.getSingleResult();
   }
 
   /**
@@ -283,5 +223,9 @@ public abstract class AbstractService<ENTITY extends AbstractModel> {
     }
 
     return null;
+  }
+
+  public Class<ENTITY> getEntityClass() {
+    return entityClass;
   }
 }

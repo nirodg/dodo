@@ -18,11 +18,11 @@
  *******************************************************************************/
 package com.brage.dodo.jpa.mapper;
 
-import java.util.List;
+import java.util.Set;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.MappingTarget;
 import com.brage.dodo.jpa.AbstractDTOModel;
-import com.brage.dodo.jpa.AbstractModel;
+import com.brage.dodo.jpa.Model;
 import com.brage.dodo.jpa.mapper.qualifiers.LoadEntity;
 
 /**
@@ -32,7 +32,7 @@ import com.brage.dodo.jpa.mapper.qualifiers.LoadEntity;
  * @param <DTO>
  */
 @MapperConfig(componentModel = "cdi")
-public abstract class AbstractModelMapper<Entity extends AbstractModel, DTO extends AbstractDTOModel> {
+public abstract class AbstractModelMapper<Entity extends Model, DTO extends AbstractDTOModel> {
 
   public abstract Entity find(DTO entity);
 
@@ -42,9 +42,9 @@ public abstract class AbstractModelMapper<Entity extends AbstractModel, DTO exte
 
   public abstract void updateDTO(@MappingTarget DTO dto, Entity entity);
 
-  public abstract List<DTO> findDTOs(List<Entity> entities);
+  public abstract Set<DTO> findDTOs(Set<Entity> entities);
 
-  public abstract List<Entity> findEntities(List<DTO> dtos);
+  public abstract Set<Entity> findEntities(Set<DTO> dtos);
 
   @LoadEntity
   public abstract Entity load(DTO dto);
