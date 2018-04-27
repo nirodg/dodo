@@ -13,7 +13,7 @@ import com.brage.dodo.jpa.AbstractModel;
 
 @Entity
 @Table(name = "CAR")
-public class Car extends AbstractModel {
+public class Car extends Model {
      
     @Column(name = "MAKE")
     private String make;
@@ -64,15 +64,16 @@ public abstract class CarMapper extends AbstractModelMapper<Car, CarDTO> {
 ```java
 // imports
 import com.brage.dodo.jpa.AbstractService;
+import com.brage.dodo.jpa.Finder;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class CarService extends AbstractService<Car, CarDTO> {
 
-  public Car getByLicensePlate(String licensePlate) {
-      initializePredicates();
-      addEqualsPredicate(Car_.licensePlate, licensePlate);
-      return getSingleResult(false);
+  public Car getByLicensePlate(String licensePlate) throws Exception {
+    return new Finder<>(this)
+        .equalTo(Car_.licensePlate, licensePlate)
+        .findItem();
   }
 
 }
