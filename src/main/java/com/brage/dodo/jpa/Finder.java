@@ -81,7 +81,12 @@ public class Finder<ENTITY extends Model> {
     if (!predicates.isEmpty()) {
       cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
     }
+
     typedQuery = entityManager.createQuery(cq);
+
+    if (maxResults != null) {
+      typedQuery.setMaxResults(maxResults);
+    }
 
     try {
       return typedQuery.getSingleResult();
@@ -575,7 +580,8 @@ public class Finder<ENTITY extends Model> {
    * @param value the integer value
    * @return this
    */
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Integer> attribute, int value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Integer> attribute,
+      int value) {
     if (attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (int) value));
     }
@@ -612,7 +618,8 @@ public class Finder<ENTITY extends Model> {
    * @param value the float value
    * @return this
    */
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Float> attribute, float value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Float> attribute,
+      float value) {
     if (attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (float) value));
     }
