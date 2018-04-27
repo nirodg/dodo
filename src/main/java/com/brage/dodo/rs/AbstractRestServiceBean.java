@@ -18,13 +18,13 @@
  *******************************************************************************/
 package com.brage.dodo.rs;
 
-import java.util.List;
+import java.util.Set;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.brage.dodo.jpa.AbstractDTOModel;
-import com.brage.dodo.jpa.Model;
 import com.brage.dodo.jpa.AbstractService;
+import com.brage.dodo.jpa.Model;
 import com.brage.dodo.jpa.mapper.AbstractModelMapper;
 
 /**
@@ -44,9 +44,9 @@ public abstract class AbstractRestServiceBean<ENTITY extends Model, DTO extends 
   private MAPPER mapper;
 
   @Override
-  public List<DTO> getAll() {
+  public Set<DTO> getAll() {
     LOG.info("calling getAll()");
-    List<ENTITY> data = service.getAll();
+    Set<ENTITY> data = service.getAll();
     return mapper.findDTOs(data);
   }
 
