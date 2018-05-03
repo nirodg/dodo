@@ -51,7 +51,7 @@ public interface AbstractRestService<DTO extends AbstractDTOModel> {
   public DTO updateByGuid(@PathParam("guid") String guid, DTO entity);
 
   @GET
-  @Path("/getByGuid/{guid}")
+  @Path("/{guid}")
   public DTO getByGuid(@PathParam("guid") String guid);
 
   @DELETE

@@ -110,7 +110,7 @@ public class Finder<ENTITY extends Model> {
     try {
       return typedQuery.getSingleResult();
     } catch (Exception e) {
-      return (ENTITY) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, null);
+      return (ENTITY) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
     }
   }
 
@@ -135,7 +135,7 @@ public class Finder<ENTITY extends Model> {
     try {
       return (Set<ENTITY>) typedQuery.getResultList();
     } catch (Exception e) {
-      return (Set<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, new HashSet<>());
+      return (Set<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e, new HashSet<>());
     }
 
   }
@@ -151,9 +151,10 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> equalTo(SingularAttribute<ENTITY, ?> attribute, Object value) {
+  public Finder<ENTITY> equalTo(SingularAttribute<? extends Model, ?> attribute, Object value) {
     if (attribute != null && value != null) {
-      predicates.add(cb.equal(root.get(attribute), value));
+      Path<Date> objAttribute = root.get(attribute.getName());
+      predicates.add(cb.equal(objAttribute, value));
     }
     return this;
   }
@@ -1238,6 +1239,13 @@ public class Finder<ENTITY extends Model> {
    */
   public Finder<ENTITY> maxItems(Integer maxResults) {
     this.maxResults = maxResults;
+    return this;
+  }
+
+  public Finder<ENTITY> join(SingularAttribute<ENTITY, ?> joinSensorData) {
+    if (joinSensorData != null) {
+      root.join(joinSensorData);
+    }
     return this;
   }
 

@@ -26,8 +26,8 @@ import org.slf4j.Logger;
  */
 public class JpaLog {
 
-  public static Object info(Logger log, Enum key, Object type) {
-    log.info("Error happened {}:{}", key, type);
+  public static Object info(Logger log, Enum<?> key, Exception e, Object type) {
+    log.info("Error happened {}:{}", key, e.getMessage());
     return type;
   }
 }

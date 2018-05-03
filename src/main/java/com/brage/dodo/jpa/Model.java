@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
@@ -34,11 +36,12 @@ import javax.persistence.TemporalType;
  * @author Dorin Brage
  */
 @MappedSuperclass
-public abstract class Model implements Serializable {
+public class Model implements Serializable {
 
   private static final long serialVersionUID = 7195951657243537422L;
 
   @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
   @Column(name = "GUID")
   private String guid;
 
