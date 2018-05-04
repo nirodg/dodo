@@ -120,7 +120,7 @@ public class Finder<ENTITY extends Model> {
    * @return a set of entities
    */
   @SuppressWarnings("unchecked")
-  public Set<ENTITY> findItems() {
+  public List<ENTITY> findItems() {
 
     if (!predicates.isEmpty()) {
       cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
@@ -133,9 +133,9 @@ public class Finder<ENTITY extends Model> {
     }
 
     try {
-      return (Set<ENTITY>) typedQuery.getResultList();
+      return (List<ENTITY>) typedQuery.getResultList();
     } catch (Exception e) {
-      return (Set<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e, new HashSet<>());
+      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e, new ArrayList<ENTITY>());
     }
 
   }

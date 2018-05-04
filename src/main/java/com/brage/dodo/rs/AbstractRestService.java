@@ -18,7 +18,7 @@
  *******************************************************************************/
 package com.brage.dodo.rs;
 
-import java.util.Set;
+import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -40,7 +40,7 @@ public interface AbstractRestService<DTO extends AbstractDTOModel> {
 
   @GET
   @Path("/")
-  public Set<DTO> getAll();
+  public List<DTO> getAll();
 
   @POST
   @Path("/")

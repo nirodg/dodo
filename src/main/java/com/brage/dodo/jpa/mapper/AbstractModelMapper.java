@@ -18,7 +18,7 @@
  *******************************************************************************/
 package com.brage.dodo.jpa.mapper;
 
-import java.util.Set;
+import java.util.List;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.MappingTarget;
 import com.brage.dodo.jpa.AbstractDTOModel;
@@ -42,9 +42,9 @@ public abstract class AbstractModelMapper<Entity extends Model, DTO extends Abst
 
   public abstract void updateDTO(@MappingTarget DTO dto, Entity entity);
 
-  public abstract Set<DTO> findDTOs(Set<Entity> entities);
+  public abstract List<DTO> findDTOs(List<Entity> entities);
 
-  public abstract Set<Entity> findEntities(Set<DTO> dtos);
+  public abstract List<Entity> findEntities(List<DTO> dtos);
 
   @LoadEntity
   public abstract Entity load(DTO dto);

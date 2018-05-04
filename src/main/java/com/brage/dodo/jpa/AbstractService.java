@@ -131,9 +131,9 @@ public abstract class AbstractService<ENTITY extends Model> {
    *
    * @return return a list of entities
    */
-  public Set<ENTITY> getAll() {
+  public List<ENTITY> getAll() {
     Query query = entityManager.createNamedQuery(entityClass.getSimpleName() + ".findAll");
-    return new HashSet<>(query.getResultList());
+    return query.getResultList();
   }
 
   public EntityManager getEntityManager() {
