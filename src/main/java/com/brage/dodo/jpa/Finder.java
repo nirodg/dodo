@@ -20,9 +20,7 @@ package com.brage.dodo.jpa;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -31,6 +29,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +134,8 @@ public class Finder<ENTITY extends Model> {
     try {
       return (List<ENTITY>) typedQuery.getResultList();
     } catch (Exception e) {
-      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e, new ArrayList<ENTITY>());
+      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
+          new ArrayList<ENTITY>());
     }
 
   }
@@ -1242,11 +1242,19 @@ public class Finder<ENTITY extends Model> {
     return this;
   }
 
-  public Finder<ENTITY> join(SingularAttribute<ENTITY, ?> joinSensorData) {
-    if (joinSensorData != null) {
-      root.join(joinSensorData);
+  public Finder<ENTITY> join(SetAttribute<ENTITY, ?> join) {
+    if (join != null) {
+      root.fetch(join);
     }
     return this;
   }
+
+  public Finder<ENTITY> join(SingularAttribute<ENTITY, ?> join) {
+    if (join != null) {
+      root.fetch(join);
+    }
+    return this;
+  }
+
 
 }

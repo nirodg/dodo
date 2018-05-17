@@ -88,7 +88,7 @@ public abstract class AbstractService<ENTITY extends Model> {
    * @param guid the GUID
    * @return the ENTITY object
    */
-  public ENTITY findByGuid(String guid) {
+  public ENTITY findByGuid(Object guid) {
     return entityManager.find(entityClass, guid);
   }
 
@@ -100,7 +100,7 @@ public abstract class AbstractService<ENTITY extends Model> {
    * @return
    */
   @TransactionAttribute(TransactionAttributeType.REQUIRED)
-  public ENTITY updateByGuid(String guid, ENTITY entity) {
+  public ENTITY updateByGuid(Object guid, ENTITY entity) {
     ENTITY objectToUpdate = findByGuid(guid);
     if (objectToUpdate != null) {
       return create(objectToUpdate);
@@ -115,7 +115,7 @@ public abstract class AbstractService<ENTITY extends Model> {
    * @return TRUE if the entity is deleted, otherwise FALSE
    */
   @TransactionAttribute(TransactionAttributeType.REQUIRED)
-  public boolean deleteByGuid(String guid) {
+  public boolean deleteByGuid(Object guid) {
     try {
       ENTITY toDelete = findByGuid(guid);
       entityManager.remove(toDelete);
