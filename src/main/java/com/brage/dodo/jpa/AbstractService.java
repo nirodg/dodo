@@ -19,13 +19,13 @@
 package com.brage.dodo.jpa;
 
 import java.lang.reflect.ParameterizedType;
+import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -52,6 +52,9 @@ public abstract class AbstractService<ENTITY extends Model> {
   @PersistenceContext
   private EntityManager entityManager;
 
+  @Inject
+  private Principal principal;
+  
   protected CriteriaBuilder cb;
   protected CriteriaQuery<ENTITY> cq;
   protected Root<ENTITY> root;
@@ -78,6 +81,8 @@ public abstract class AbstractService<ENTITY extends Model> {
    */
   @TransactionAttribute(TransactionAttributeType.REQUIRED)
   public ENTITY create(ENTITY object) {
+    object.setCreatedBy(principal.getName());
+    object.setUpdatedBy(principal.getName());
     entityManager.persist(object);
     return object;
   }
@@ -103,6 +108,7 @@ public abstract class AbstractService<ENTITY extends Model> {
   public ENTITY updateByGuid(Object guid, ENTITY entity) {
     ENTITY objectToUpdate = findByGuid(guid);
     if (objectToUpdate != null) {
+      objectToUpdate.setUpdatedBy(principal.getName());
       return create(objectToUpdate);
     }
     return null;

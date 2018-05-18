@@ -20,9 +20,8 @@ package com.brage.dodo.jpa;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
@@ -40,9 +39,8 @@ public class Model implements Serializable {
   private static final long serialVersionUID = 7195951657243537422L;
 
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
   @Column(name = "GUID")
-  private int guid;
+  private String guid;
 
   @Column(name = "CREATED_BY")
   private String createdBy;
@@ -59,22 +57,21 @@ public class Model implements Serializable {
 
   @PrePersist
   public void prePersist() {
-//    guid = UUID.randomUUID().toString();
-    createdBy = "sys";
+    guid = UUID.randomUUID().toString();
     createdOn = new Date();
+    updatedOn = new Date();
   }
 
   @PreUpdate
   public void preUpdate() {
-    updatedBy = "sys";
     updatedOn = new Date();
   }
 
-  public int getGuid() {
+  public String getGuid() {
     return guid;
   }
 
-  public void setGuid(int guid) {
+  public void setGuid(String guid) {
     this.guid = guid;
   }
 
