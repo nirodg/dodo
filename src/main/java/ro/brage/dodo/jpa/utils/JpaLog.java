@@ -16,46 +16,18 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.rs;
+package ro.brage.dodo.jpa.utils;
 
-import java.util.List;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import com.brage.dodo.jpa.AbstractDTOModel;
+import org.slf4j.Logger;
 
 /**
  *
  * @author Dorin Brage
  */
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
-public interface AbstractRestService<DTO extends AbstractDTOModel> {
+public class JpaLog {
 
-  @GET
-  @Path("/")
-  public List<DTO> getAll();
-
-  @POST
-  @Path("/")
-  public DTO create(DTO entity);
-
-  @PUT
-  @Path("/{guid}")
-  public DTO updateByGuid(@PathParam("guid") String guid, DTO entity);
-
-  @GET
-  @Path("/{guid}")
-  public DTO getByGuid(@PathParam("guid") String guid);
-
-  @DELETE
-  @Path("/{guid}")
-  public boolean deleteByGuid(@PathParam("guid") String guid);
-
+  public static Object info(Logger log, Enum<?> key, Exception e, Object type) {
+    log.info("Error happened {}:{}", key, e.getMessage());
+    return type;
+  }
 }

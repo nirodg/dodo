@@ -16,18 +16,21 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.jpa.utils;
+package ro.brage.dodo.jpa.mapper.qualifiers;
 
-import org.slf4j.Logger;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.mapstruct.Qualifier;
 
 /**
  *
  * @author Dorin Brage
  */
-public class JpaLog {
+@Qualifier
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.CLASS)
+public @interface LoadEntity {
 
-  public static Object info(Logger log, Enum<?> key, Exception e, Object type) {
-    log.info("Error happened {}:{}", key, e.getMessage());
-    return type;
-  }
 }

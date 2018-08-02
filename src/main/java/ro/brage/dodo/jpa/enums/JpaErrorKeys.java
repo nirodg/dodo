@@ -16,34 +16,16 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.jpa.utils;
-
-import java.util.HashMap;
-import java.util.Map;
-import javax.persistence.metamodel.SingularAttribute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package ro.brage.dodo.jpa.enums;
 
 /**
+ *
  * @author Dorin Brage
  */
-public class QueryParams {
+public enum JpaErrorKeys {
+  // FIND
+  FAILED_TO_FIND_ENTITY, FAILED_TO_FIND_ENTITIES,
 
-  private final Logger LOG = LoggerFactory.getLogger(QueryParams.class);
-
-  Map<String, Object> data;
-
-  public QueryParams() {
-    data = new HashMap<>();
-  }
-
-  public QueryParams addParameter(SingularAttribute<?, ?> key, Object value) {
-    data.put(key.getName(), value);
-    LOG.debug("QueryParams:addParameter({},{})", key.getName(), value);
-    return this;
-  }
-
-  public Map<String, Object> getParams() {
-    return data;
-  }
+  // LOAD
+  FAILED_TO_LOAD_ENTITY, FAILED_TO_LOAD_ENTITIES,
 }

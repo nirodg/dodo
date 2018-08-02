@@ -16,7 +16,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.jpa;
+package ro.brage.dodo.jpa;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,9 +33,9 @@ import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.brage.dodo.jpa.enums.JpaErrorKeys;
-import com.brage.dodo.jpa.enums.OrderBy;
-import com.brage.dodo.jpa.utils.JpaLog;
+import ro.brage.dodo.jpa.enums.JpaErrorKeys;
+import ro.brage.dodo.jpa.enums.OrderBy;
+import ro.brage.dodo.jpa.utils.JpaLog;
 
 /**
  * The Finder provides additional methods when querying an entity based on {@link CriteriaBuilder}

@@ -16,21 +16,34 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.jpa.mapper.qualifiers;
+package ro.brage.dodo.jpa.utils;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import org.mapstruct.Qualifier;
+import java.util.HashMap;
+import java.util.Map;
+import javax.persistence.metamodel.SingularAttribute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author Dorin Brage
  */
-@Qualifier
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
-public @interface LoadEntity {
+public class QueryParams {
 
+  private final Logger LOG = LoggerFactory.getLogger(QueryParams.class);
+
+  Map<String, Object> data;
+
+  public QueryParams() {
+    data = new HashMap<>();
+  }
+
+  public QueryParams addParameter(SingularAttribute<?, ?> key, Object value) {
+    data.put(key.getName(), value);
+    LOG.debug("QueryParams:addParameter({},{})", key.getName(), value);
+    return this;
+  }
+
+  public Map<String, Object> getParams() {
+    return data;
+  }
 }

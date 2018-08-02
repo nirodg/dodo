@@ -16,7 +16,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.jpa;
+package ro.brage.dodo.jpa;
 
 import java.lang.reflect.ParameterizedType;
 import java.security.Principal;
@@ -35,9 +35,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.brage.dodo.jpa.enums.JpaErrorKeys;
-import com.brage.dodo.jpa.utils.JpaLog;
-import com.brage.dodo.jpa.utils.QueryParams;
+import ro.brage.dodo.jpa.enums.JpaErrorKeys;
+import ro.brage.dodo.jpa.utils.JpaLog;
+import ro.brage.dodo.jpa.utils.QueryParams;
 
 /**
  *

@@ -16,40 +16,39 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.jpa.mapper;
 
-import java.util.List;
-import org.mapstruct.MapperConfig;
-import org.mapstruct.MappingTarget;
-import com.brage.dodo.jpa.AbstractDTOModel;
-import com.brage.dodo.jpa.Model;
-import com.brage.dodo.jpa.mapper.qualifiers.LoadEntity;
+package ro.brage.dodo.i18n;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
- *
  * @author Dorin Brage
- * @param <Entity>
- * @param <DTO>
  */
-@MapperConfig(componentModel = "cdi")
-public abstract class AbstractModelMapper<Entity extends Model, DTO extends AbstractDTOModel> {
+public class Translation {
 
-  public abstract Entity find(DTO entity);
+  private ResourceBundle bundle;
+  protected String baseName;
+  protected Locale locale;
 
-  public abstract DTO find(Entity entity);
+  private final static String SUFIX = "[]";
 
-  public abstract void updateEntity(DTO dto, @MappingTarget Entity entity);
+  public Translation(String baseName, Locale locale) {
+    this.bundle = ResourceBundle.getBundle(baseName, locale);
+    this.baseName = baseName;
+    this.locale = locale;
+  }
 
-  public abstract void updateDTO(@MappingTarget DTO dto, Entity entity);
+  public String getTranslation(String value) {
+    if (bundle.containsKey(value)) {
+      return bundle.getString(value);
+    }
+    return value + SUFIX;
+  }
 
-  public abstract List<DTO> findDTOs(List<Entity> entities);
-
-  public abstract List<Entity> findEntities(List<DTO> dtos);
-
-  @LoadEntity
-  public abstract Entity load(DTO dto);
-
-  @LoadEntity
-  public abstract DTO load(Entity entity);
+  public String getTranslation(Enum<?> key) {
+    String value = key.getClass().getSimpleName() + "." + key.toString();
+    return getTranslation(value);
+  }
 
 }

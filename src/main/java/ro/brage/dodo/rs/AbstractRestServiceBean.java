@@ -16,16 +16,16 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.rs;
+package ro.brage.dodo.rs;
 
 import java.util.List;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.brage.dodo.jpa.AbstractDTOModel;
-import com.brage.dodo.jpa.AbstractService;
-import com.brage.dodo.jpa.Model;
-import com.brage.dodo.jpa.mapper.AbstractModelMapper;
+import ro.brage.dodo.jpa.AbstractDTOModel;
+import ro.brage.dodo.jpa.AbstractService;
+import ro.brage.dodo.jpa.Model;
+import ro.brage.dodo.jpa.mapper.AbstractModelMapper;
 
 /**
  * The abstract rest service bean class
