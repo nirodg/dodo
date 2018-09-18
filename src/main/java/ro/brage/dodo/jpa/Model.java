@@ -28,6 +28,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 /**
  *
@@ -38,6 +39,9 @@ public class Model implements Serializable {
 
   private static final long serialVersionUID = 7195951657243537422L;
 
+  @Transient
+  public final static String GUID = "guid";
+  
   @Id
   @Column(name = "GUID")
   private String guid;

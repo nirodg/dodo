@@ -31,6 +31,10 @@ import ro.brage.dodo.jpa.mapper.AbstractModelMapper;
  * The abstract rest service bean class
  * 
  * @author Dorin Brage
+ * @param <ENTITY>
+ * @param <DTO>
+ * @param <SERVICE>
+ * @param <MAPPER>
  */
 public abstract class AbstractRestServiceBean<ENTITY extends Model, DTO extends AbstractDTOModel, SERVICE extends AbstractService<ENTITY>, MAPPER extends AbstractModelMapper<ENTITY, DTO>>
     implements AbstractRestService<DTO> {
@@ -71,6 +75,11 @@ public abstract class AbstractRestServiceBean<ENTITY extends Model, DTO extends 
   @Override
   public boolean deleteByGuid(String guid) {
     return service.deleteByGuid(guid);
+  }
+
+  @Override
+  public DTO loadByGuid(String guid) {
+    return mapper.load(service.loadByGuid(guid));
   }
 
   public ENTITY mapEntity(DTO dto) {

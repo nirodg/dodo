@@ -26,12 +26,14 @@ import javax.annotation.PostConstruct;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +51,16 @@ public abstract class AbstractService<ENTITY extends Model> {
 
   private Logger LOG = LoggerFactory.getLogger(AbstractService.class);
 
+
+  protected final static String HINT_FETCH_GRAPH = "javax.persistence.fetchgraph";
+  protected final static String HINT_LOAD_GRAPH = "javax.persistence.loadgraph";
+
   @PersistenceContext
   private EntityManager entityManager;
 
   @Inject
   private Principal principal;
-  
+
   protected CriteriaBuilder cb;
   protected CriteriaQuery<ENTITY> cq;
   protected Root<ENTITY> root;
@@ -130,6 +136,13 @@ public abstract class AbstractService<ENTITY extends Model> {
       LOG.error("Couldn't delete the entity {}", e.getMessage());
       return false;
     }
+  }
+
+  public ENTITY loadByGuid(String guid) {
+    cq.where(cb.equal(root.get(Model.GUID), guid));
+    typedQuery = entityManager.createQuery(cq);
+    typedQuery.setHint(HINT_LOAD_GRAPH, entityClass.getSimpleName() + ".loadByGuid");
+    return typedQuery.getSingleResult();
   }
 
   /**

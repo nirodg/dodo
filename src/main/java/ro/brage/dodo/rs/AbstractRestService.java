@@ -33,6 +33,7 @@ import ro.brage.dodo.jpa.AbstractDTOModel;
 /**
  *
  * @author Dorin Brage
+ * @param <DTO>
  */
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -53,9 +54,14 @@ public interface AbstractRestService<DTO extends AbstractDTOModel> {
   @GET
   @Path("/{guid}")
   public DTO getByGuid(@PathParam("guid") String guid);
-
+  
   @DELETE
   @Path("/{guid}")
   public boolean deleteByGuid(@PathParam("guid") String guid);
+
+
+  @GET
+  @Path("/load/{guid}")
+  public DTO loadByGuid(@PathParam("guid") String guid);
 
 }
