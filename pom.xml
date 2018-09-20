@@ -111,18 +111,4 @@
         <developerConnection>scm:git:git@github.com:nirodg/dodo.git</developerConnection>
     </scm>
 
-
-	<distributionManagement>
-		<repository>
-		  <id>nexus</id>
-		  <name>Releases</name>
-		  <url>http://eorghe.com:8081/repository/maven-releases</url>
-		</repository>
-		<snapshotRepository>
-		  <id>nexus</id>
-		  <name>Snapshot</name>
-		  <url>http://eorghe.com:8081/repository/maven-snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 </project>

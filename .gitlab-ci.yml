@@ -1,6 +1,7 @@
 image: maven:latest
 
 stages:
+- clean
 - build
 - publish
 
@@ -10,15 +11,25 @@ variables:
 cache:
   paths:
     - .m2/repository
+    - target/
 
+mvn:clean:
+    stage: clean
+    script:
+     - mvn $MAVEN_CLI_OPTS clean verify
+    
 mvn:build:
     stage: build
     script:
-     - mvn $MAVEN_CLI_OPTS clean install
+     - mvn $MAVEN_CLI_OPTS clean install -U
+    only:
+     - master
+     - develop
+     - /^release\/.*$/
 
 mvn:publish:
     stage: build
     script:
-     - mvn $MAVEN_CLI_OPTS deploy
+     - mvn $MAVEN_CLI_OPTS deploy -U
     only:
      - master
