@@ -29,7 +29,6 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,8 +169,8 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> equalTo(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<?, ?> attribute, Object value) {
+  public Finder<ENTITY> equalTo(Join<ENTITY, ? extends Model> join, SingularAttribute<Model, ?> attribute,
+      Object value) {
     if (join != null && attribute != null && value != null) {
       predicates.add(cb.equal(join.get(attribute.getName()), value));
     }
@@ -189,7 +188,7 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> notEqualTo(SingularAttribute<ENTITY, ?> attribute, Object value) {
+  public Finder<ENTITY> notEqualTo(SingularAttribute<Model, ?> attribute, Object value) {
     if (attribute != null && value != null) {
       predicates.add(cb.notEqual(root.get(attribute), value));
     }
@@ -227,7 +226,7 @@ public class Finder<ENTITY extends Model> {
    * @param to the TO date
    * @return this
    */
-  public Finder<ENTITY> between(SingularAttribute<ENTITY, Date> attribute, Date from, Date to) {
+  public Finder<ENTITY> between(SingularAttribute<Model, Date> attribute, Date from, Date to) {
     greaterThan(attribute, from);
     lessThan(attribute, to);
     return this;
@@ -246,7 +245,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> between(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Date> attribute, Date from, Date to) {
+      SingularAttribute<Model, Date> attribute, Date from, Date to) {
     greaterThan(join, attribute, from);
     lessThan(join, attribute, to);
     return this;
@@ -264,7 +263,7 @@ public class Finder<ENTITY extends Model> {
    * @param to the
    * @return this
    */
-  public Finder<ENTITY> between(SingularAttribute<ENTITY, Integer> attribute, Integer from,
+  public Finder<ENTITY> between(SingularAttribute<Model, Integer> attribute, Integer from,
       Integer to) {
     greaterThan(attribute, from);
     lessThan(attribute, to);
@@ -284,8 +283,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> between(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<? extends Model, Integer> attribute, Integer from,
-      Integer to) {
+      SingularAttribute<? extends Model, Integer> attribute, Integer from, Integer to) {
     greaterThan(join, attribute, from);
     lessThan(join, attribute, to);
     return this;
@@ -303,7 +301,7 @@ public class Finder<ENTITY extends Model> {
    * @param to the
    * @return this
    */
-  public Finder<ENTITY> between(SingularAttribute<ENTITY, Double> attribute, Double from,
+  public Finder<ENTITY> between(SingularAttribute<Model, Double> attribute, Double from,
       Integer to) {
     greaterThan(attribute, from);
     lessThan(attribute, to);
@@ -323,8 +321,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> between(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<? extends Model, Double> attribute, Double from,
-      Integer to) {
+      SingularAttribute<? extends Model, Double> attribute, Double from, Integer to) {
     greaterThan(join, attribute, from);
     lessThan(join, attribute, to);
     return this;
@@ -342,7 +339,7 @@ public class Finder<ENTITY extends Model> {
    * @param to the
    * @return this
    */
-  public Finder<ENTITY> between(SingularAttribute<ENTITY, Float> attribute, Float from, Float to) {
+  public Finder<ENTITY> between(SingularAttribute<Model, Float> attribute, Float from, Float to) {
     greaterThan(attribute, from);
     lessThan(attribute, to);
     return this;
@@ -379,7 +376,7 @@ public class Finder<ENTITY extends Model> {
    * @param to the
    * @return this
    */
-  public Finder<ENTITY> between(SingularAttribute<ENTITY, Long> attribute, Long from, Integer to) {
+  public Finder<ENTITY> between(SingularAttribute<Model, Long> attribute, Long from, Integer to) {
     greaterThan(attribute, from);
     lessThan(attribute, to);
     return this;
@@ -398,7 +395,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> between(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Long> attribute, Long from, Long to) {
+      SingularAttribute<Model, Long> attribute, Long from, Long to) {
     greaterThan(join, attribute, from);
     lessThan(join, attribute, to);
     return this;
@@ -415,10 +412,9 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date
    * @return this
    */
-  public Finder<ENTITY> greaterThan(SingularAttribute<ENTITY, Date> attribute, Date value) {
+  public Finder<ENTITY> greaterThan(SingularAttribute<Model, Date> attribute, Date value) {
     if (attribute != null && value != null) {
-      Path<Date> objAttribute = root.get(attribute);
-      predicates.add(cb.greaterThan(objAttribute, value));
+      predicates.add(cb.greaterThan(root.get("asd"), value));
     }
     return this;
   }
@@ -454,7 +450,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the integer value
    * @return this
    */
-  public Finder<ENTITY> greaterThan(SingularAttribute<ENTITY, Integer> attribute, int value) {
+  public Finder<ENTITY> greaterThan(SingularAttribute<Model, Integer> attribute, int value) {
     if (attribute != null) {
       Path<? extends Number> objAttribute = root.get(attribute);
       predicates.add(cb.gt(objAttribute, (int) value));
@@ -493,7 +489,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the double value
    * @return this
    */
-  public Finder<ENTITY> greaterThan(SingularAttribute<ENTITY, Double> attribute, double value) {
+  public Finder<ENTITY> greaterThan(SingularAttribute<Model, Double> attribute, double value) {
     if (attribute != null) {
       Path<? extends Number> objAttribute = root.get(attribute);
       predicates.add(cb.gt(objAttribute, (double) value));
@@ -532,7 +528,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the float value
    * @return this
    */
-  public Finder<ENTITY> greaterThan(SingularAttribute<ENTITY, Float> attribute, float value) {
+  public Finder<ENTITY> greaterThan(SingularAttribute<Model, Float> attribute, float value) {
     if (attribute != null) {
       Path<? extends Number> objAttribute = root.get(attribute);
       predicates.add(cb.gt(objAttribute, (float) value));
@@ -571,7 +567,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the long value
    * @return this
    */
-  public Finder<ENTITY> greaterThan(SingularAttribute<ENTITY, Long> attribute, long value) {
+  public Finder<ENTITY> greaterThan(SingularAttribute<Model, Long> attribute, long value) {
     if (attribute != null) {
       Path<? extends Number> objAttribute = root.get(attribute);
       predicates.add(cb.gt(objAttribute, (long) value));
@@ -610,8 +606,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the DATE value
    * @return this
    */
-  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<ENTITY, Date> attribute,
-      Date value) {
+  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<Model, Date> attribute, Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.greaterThanOrEqualTo(root.get(attribute), (Date) value));
     }
@@ -630,8 +625,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> greaterThanOrEqualTo(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Date> attribute,
-      Date value) {
+      SingularAttribute<Model, Date> attribute, Date value) {
     if (join != null && attribute != null && value != null) {
       predicates.add(cb.greaterThanOrEqualTo(join.get(attribute.getName()), (Date) value));
     }
@@ -649,7 +643,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the integer value
    * @return this
    */
-  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<ENTITY, Integer> attribute,
+  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<Model, Integer> attribute,
       int value) {
     if (attribute != null) {
       predicates.add(cb.greaterThanOrEqualTo(root.get(attribute), (int) value));
@@ -669,8 +663,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> greaterThanOrEqualTo(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Integer> attribute,
-      int value) {
+      SingularAttribute<Model, Integer> attribute, int value) {
     if (join != null && attribute != null) {
       predicates.add(cb.greaterThanOrEqualTo(join.get(attribute.getName()), (int) value));
     }
@@ -688,7 +681,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the double value
    * @return this
    */
-  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<ENTITY, Double> attribute,
+  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<Model, Double> attribute,
       double value) {
     if (attribute != null) {
       predicates.add(cb.greaterThanOrEqualTo(root.get(attribute), (double) value));
@@ -708,8 +701,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> greaterThanOrEqualTo(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Double> attribute,
-      double value) {
+      SingularAttribute<Model, Double> attribute, double value) {
     if (join != null && attribute != null) {
       predicates.add(cb.greaterThanOrEqualTo(join.get(attribute.getName()), (double) value));
     }
@@ -727,7 +719,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the float value
    * @return this
    */
-  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<ENTITY, Float> attribute,
+  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<Model, Float> attribute,
       float value) {
     if (attribute != null) {
       predicates.add(cb.greaterThanOrEqualTo(root.get(attribute), (float) value));
@@ -747,8 +739,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> greaterThanOrEqualTo(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Float> attribute,
-      float value) {
+      SingularAttribute<Model, Float> attribute, float value) {
     if (join != null && attribute != null) {
       predicates.add(cb.greaterThanOrEqualTo(join.get(attribute.getName()), (float) value));
     }
@@ -766,8 +757,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the long value
    * @return this
    */
-  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<ENTITY, Long> attribute,
-      long value) {
+  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<Model, Long> attribute, long value) {
     if (attribute != null) {
       predicates.add(cb.greaterThanOrEqualTo(root.get(attribute), (long) value));
     }
@@ -786,8 +776,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> greaterThanOrEqualTo(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Long> attribute,
-      long value) {
+      SingularAttribute<Model, Long> attribute, long value) {
     if (join != null && attribute != null) {
       predicates.add(cb.greaterThanOrEqualTo(join.get(attribute.getName()), (long) value));
     }
@@ -805,7 +794,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date
    * @return this
    */
-  public Finder<ENTITY> lessThan(SingularAttribute<ENTITY, Date> attribute, Date value) {
+  public Finder<ENTITY> lessThan(SingularAttribute<Model, Date> attribute, Date value) {
     if (attribute != null && value != null) {
       Path<Date> objAttribute = root.get(attribute);
       predicates.add(cb.lessThan(objAttribute, value));
@@ -844,7 +833,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the integer value
    * @return this
    */
-  public Finder<ENTITY> lessThan(SingularAttribute<ENTITY, Integer> attribute, int value) {
+  public Finder<ENTITY> lessThan(SingularAttribute<Model, Integer> attribute, int value) {
     if (attribute != null) {
       Path<? extends Number> objAttribute = root.get(attribute);
       predicates.add(cb.lt(objAttribute, (int) value));
@@ -883,7 +872,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the double value
    * @return this
    */
-  public Finder<ENTITY> lessThan(SingularAttribute<ENTITY, Double> attribute, double value) {
+  public Finder<ENTITY> lessThan(SingularAttribute<Model, Double> attribute, double value) {
     if (attribute != null) {
       Path<? extends Number> objAttribute = root.get(attribute);
       predicates.add(cb.lt(objAttribute, (double) value));
@@ -922,7 +911,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the float value
    * @return this
    */
-  public Finder<ENTITY> lessThan(SingularAttribute<ENTITY, Float> attribute, float value) {
+  public Finder<ENTITY> lessThan(SingularAttribute<Model, Float> attribute, float value) {
     if (attribute != null) {
       Path<? extends Number> objAttribute = root.get(attribute);
       predicates.add(cb.lt(objAttribute, (float) value));
@@ -961,7 +950,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the long value
    * @return this
    */
-  public Finder<ENTITY> lessThan(SingularAttribute<ENTITY, Long> attribute, long value) {
+  public Finder<ENTITY> lessThan(SingularAttribute<Model, Long> attribute, long value) {
     if (attribute != null) {
       Path<? extends Number> objAttribute = root.get(attribute);
       predicates.add(cb.lt(objAttribute, (Long) value));
@@ -1000,7 +989,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date value
    * @return this
    */
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Date> attribute, Date value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<Model, Date> attribute, Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (Date) value));
     }
@@ -1019,7 +1008,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> lesserThanOrEquals(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Date> attribute, Date value) {
+      SingularAttribute<Model, Date> attribute, Date value) {
     if (join != null && attribute != null && value != null) {
       predicates.add(cb.lessThanOrEqualTo(join.get(attribute.getName()), (Date) value));
     }
@@ -1037,8 +1026,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the integer value
    * @return this
    */
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Integer> attribute,
-      int value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<Model, Integer> attribute, int value) {
     if (attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (int) value));
     }
@@ -1057,8 +1045,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> lesserThanOrEquals(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Integer> attribute,
-      int value) {
+      SingularAttribute<Model, Integer> attribute, int value) {
     if (join != null && attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(join.get(attribute.getName()), (int) value));
     }
@@ -1076,7 +1063,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the double value
    * @return this
    */
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Double> attribute,
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<Model, Double> attribute,
       double value) {
     if (attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (double) value));
@@ -1096,8 +1083,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> lesserThanOrEquals(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Double> attribute,
-      double value) {
+      SingularAttribute<Model, Double> attribute, double value) {
     if (join != null && attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(join.get(attribute.getName()), (double) value));
     }
@@ -1115,8 +1101,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the float value
    * @return this
    */
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Float> attribute,
-      float value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<Model, Float> attribute, float value) {
     if (attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (float) value));
     }
@@ -1135,8 +1120,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> lesserThanOrEquals(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Float> attribute,
-      float value) {
+      SingularAttribute<Model, Float> attribute, float value) {
     if (join != null && attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(join.get(attribute.getName()), (float) value));
     }
@@ -1154,7 +1138,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the long value
    * @return this
    */
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<ENTITY, Long> attribute, long value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<Model, Long> attribute, long value) {
     if (attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute), (long) value));
     }
@@ -1173,7 +1157,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> lesserThanOrEquals(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, Long> attribute, long value) {
+      SingularAttribute<Model, Long> attribute, long value) {
     if (join != null && attribute != null) {
       predicates.add(cb.lessThanOrEqualTo(join.get(attribute.getName()), (long) value));
     }
@@ -1187,7 +1171,7 @@ public class Finder<ENTITY extends Model> {
    * @param orderBy
    * @return
    */
-  public Finder<ENTITY> orderBy(SingularAttribute<ENTITY, ?> attribute, OrderBy orderBy) {
+  public Finder<ENTITY> orderBy(SingularAttribute<Model, ?> attribute, OrderBy orderBy) {
     if (attribute != null && orderBy != null) {
       switch (orderBy) {
         case ASC:
@@ -1211,9 +1195,8 @@ public class Finder<ENTITY extends Model> {
    * @param orderBy
    * @return
    */
-
   public Finder<ENTITY> orderBy(Join<ENTITY, ? extends Model> join,
-      SingularAttribute<ENTITY, ?> attribute, OrderBy orderBy) {
+      SingularAttribute<Model, ?> attribute, OrderBy orderBy) {
     if (join != null && attribute != null && orderBy != null) {
       switch (orderBy) {
         case ASC:
@@ -1239,20 +1222,6 @@ public class Finder<ENTITY extends Model> {
    */
   public Finder<ENTITY> maxItems(Integer maxResults) {
     this.maxResults = maxResults;
-    return this;
-  }
-
-  public Finder<ENTITY> join(SetAttribute<ENTITY, ?> join) {
-    if (join != null) {
-      root.fetch(join);
-    }
-    return this;
-  }
-
-  public Finder<ENTITY> join(SingularAttribute<ENTITY, ?> join) {
-    if (join != null) {
-      root.fetch(join);
-    }
     return this;
   }
 
