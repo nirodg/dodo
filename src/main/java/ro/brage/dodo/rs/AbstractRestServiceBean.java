@@ -20,6 +20,8 @@ package ro.brage.dodo.rs;
 
 import java.util.List;
 import javax.inject.Inject;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.brage.dodo.jpa.AbstractDTOModel;
@@ -48,37 +50,37 @@ public abstract class AbstractRestServiceBean<ENTITY extends Model, DTO extends 
   private MAPPER mapper;
 
   @Override
-  public List<DTO> getAll() {
+  public List<DTO> getAll(@Context SecurityContext sc) {
     LOG.info("calling getAll()");
     List<ENTITY> data = service.getAll();
     return mapper.findDTOs(data);
   }
 
   @Override
-  public DTO create(DTO entity) {
+  public DTO create(DTO entity, @Context SecurityContext sc) {
     ENTITY data = mapEntity(entity);
     return mapDTO(service.create(data));
   }
 
   @Override
-  public DTO updateByGuid(String guid, DTO entity) {
+  public DTO updateByGuid(String guid, DTO entity, @Context SecurityContext sc) {
     ENTITY data = service.updateByGuid(guid, mapper.find(entity));
     return mapDTO(data);
   }
 
   @Override
-  public DTO getByGuid(String guid) {
+  public DTO getByGuid(String guid, @Context SecurityContext sc) {
     ENTITY data = service.findByGuid(guid);
     return mapDTO(data);
   }
 
   @Override
-  public boolean deleteByGuid(String guid) {
+  public boolean deleteByGuid(String guid, @Context SecurityContext sc) {
     return service.deleteByGuid(guid);
   }
 
   @Override
-  public DTO loadByGuid(String guid) {
+  public DTO loadByGuid(String guid, @Context SecurityContext sc) {
     return mapper.load(service.loadByGuid(guid));
   }
 
