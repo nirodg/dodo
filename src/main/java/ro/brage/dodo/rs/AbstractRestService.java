@@ -27,7 +27,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 import ro.brage.dodo.jpa.AbstractDTOModel;
 
 /**
@@ -41,27 +43,26 @@ public interface AbstractRestService<DTO extends AbstractDTOModel> {
 
   @GET
   @Path("/")
-  public List<DTO> getAll();
+  public List<DTO> getAll(@Context SecurityContext sc);
 
   @POST
   @Path("/")
-  public DTO create(DTO entity);
+  public DTO create(DTO entity, @Context SecurityContext sc);
 
   @PUT
   @Path("/{guid}")
-  public DTO updateByGuid(@PathParam("guid") String guid, DTO entity);
+  public DTO updateByGuid(@PathParam("guid") String guid, DTO entity, @Context SecurityContext sc);
 
   @GET
   @Path("/{guid}")
-  public DTO getByGuid(@PathParam("guid") String guid);
-  
+  public DTO getByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+
   @DELETE
   @Path("/{guid}")
-  public boolean deleteByGuid(@PathParam("guid") String guid);
-
+  public boolean deleteByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
 
   @GET
   @Path("/load/{guid}")
-  public DTO loadByGuid(@PathParam("guid") String guid);
+  public DTO loadByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
 
 }
