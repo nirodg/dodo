@@ -22,10 +22,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
+import javax.persistence.FlushModeType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -99,11 +101,13 @@ public class Finder<ENTITY extends Model> {
       cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
     }
 
-    typedQuery = entityManager.createQuery(cq);
+    typedQuery = entityManager.createQuery(cq).setFlushMode(FlushModeType.AUTO);
 
     if (maxResults != null) {
       typedQuery.setMaxResults(maxResults);
     }
+
+    LOG.info("Finder => Finding single entity for {}", service.getEntityClass().getName());
 
     try {
       return typedQuery.getSingleResult();
@@ -124,11 +128,14 @@ public class Finder<ENTITY extends Model> {
       cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
     }
 
-    typedQuery = entityManager.createQuery(cq);
+    typedQuery = entityManager.createQuery(cq).setFlushMode(FlushModeType.AUTO);
 
     if (maxResults != null) {
       typedQuery.setMaxResults(maxResults);
     }
+
+    LOG.info("Finder => Finding multiples single entity for {} and {} max results ",
+        service.getEntityClass().getName(), maxResults);
 
     try {
       return (List<ENTITY>) typedQuery.getResultList();
@@ -169,12 +176,38 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> equalTo(Join<ENTITY, ? extends Model> join, SingularAttribute<Model, ?> attribute,
-      Object value) {
-    if (join != null && attribute != null && value != null) {
-      predicates.add(cb.equal(join.get(attribute.getName()), value));
+  public Finder<ENTITY> equalTo(SingularAttribute<ENTITY, ? extends Model> joinEntity,
+      SingularAttribute<Model, String> attribute, String value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin(joinEntity);
+      predicates.add(cb.equal(rootJoinEntity.get(attribute.getName()), value));
     }
     return this;
+  }
+
+  private Join<ENTITY, ? extends Model> addJoin(SingularAttribute<ENTITY, ? extends Model> entity) {
+    Join<ENTITY, ? extends Model> joinEntity = null;
+    LOG.info("=> Check already defined join for the entity");
+
+
+    if (root.getJoins().isEmpty()) {
+      return root.join(entity, JoinType.LEFT);
+    }
+
+    LOG.info("Total Join {}", root.getJoins().size());
+
+    for (Join<ENTITY, ?> join : root.getJoins()) {
+      LOG.info("Join => {}", join.getAttribute().getName());
+      if (!join.getAttribute().getClass().getName().equals(entity.getName())) {
+        joinEntity = root.join(entity, JoinType.LEFT);
+        LOG.info("=> Will join the {}", entity.getName());
+      } else {
+        // returns already existing join
+        joinEntity = (Join<ENTITY, ? extends Model>) join;
+      }
+    }
+
+    return joinEntity;
   }
 
   /**

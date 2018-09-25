@@ -19,6 +19,7 @@
 package ro.brage.dodo.jpa.mapper;
 
 import java.util.List;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.MappingTarget;
 import ro.brage.dodo.jpa.AbstractDTOModel;
@@ -45,6 +46,14 @@ public abstract class AbstractModelMapper<Entity extends Model, DTO extends Abst
   public abstract List<DTO> findDTOs(List<Entity> entities);
 
   public abstract List<Entity> findEntities(List<DTO> dtos);
+
+  @LoadEntity
+  @IterableMapping(qualifiedBy= {LoadEntity.class})
+  public abstract List<DTO> loadDTOs(List<Entity> entities);
+
+  @LoadEntity
+  @IterableMapping(qualifiedBy= {LoadEntity.class})
+  public abstract List<Entity> loadEntities(List<DTO> dtos);
 
   @LoadEntity
   public abstract Entity load(DTO dto);
