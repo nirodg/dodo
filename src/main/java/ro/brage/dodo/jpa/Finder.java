@@ -423,7 +423,7 @@ public class Finder<ENTITY extends Model> {
    */
   public Finder<ENTITY> greaterThan(SingularAttribute<Model, Date> attribute, Date value) {
     if (attribute != null && value != null) {
-      predicates.add(cb.greaterThan(root.get("asd"), value));
+      predicates.add(cb.greaterThan(root.get(attribute), value));
     }
     return this;
   }
