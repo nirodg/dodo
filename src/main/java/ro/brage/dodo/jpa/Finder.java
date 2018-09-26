@@ -194,16 +194,19 @@ public class Finder<ENTITY extends Model> {
       return root.join(entity, JoinType.LEFT);
     }
 
-    LOG.info("Total Join {}", root.getJoins().size());
+    LOG.info("=> Total Join {}", root.getJoins().size());
+
+    String entityClassName = entity.getType().getJavaType().getSimpleName();
 
     for (Join<ENTITY, ?> join : root.getJoins()) {
-      LOG.info("Join => {}", join.getAttribute().getName());
-      if (!join.getAttribute().getClass().getName().equals(entity.getName())) {
+      String joinClassName = join.getModel().getBindableJavaType().getSimpleName();
+      if (!joinClassName.equals(entityClassName)) {
         joinEntity = root.join(entity, JoinType.LEFT);
         LOG.info("=> Will join the {}", entity.getName());
       } else {
-        // returns already existing join
+        //
         joinEntity = (Join<ENTITY, ? extends Model>) join;
+        LOG.info("=> Returns already existing join : {}", entity.getName());
       }
     }
 
