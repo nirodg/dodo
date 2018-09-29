@@ -619,7 +619,8 @@ public class Finder<ENTITY extends Model> {
    * @param value the DATE value
    * @return this
    */
-  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<? extends Model, Date> attribute, Date value) {
+  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<? extends Model, Date> attribute,
+      Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.greaterThanOrEqualTo(root.get(attribute.getName()), (Date) value));
     }
@@ -1011,7 +1012,8 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date value
    * @return this
    */
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<? extends Model, Date> attribute, Date value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<? extends Model, Date> attribute,
+      Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute.getName()), (Date) value));
     }
@@ -1251,6 +1253,47 @@ public class Finder<ENTITY extends Model> {
    */
   public Finder<ENTITY> maxItems(Integer maxResults) {
     this.maxResults = maxResults;
+    return this;
+  }
+
+  /**
+   * Will eliminate duplicated query results.
+   * 
+   * @return this
+   */
+  public Finder<ENTITY> distinct() {
+    cq.distinct(true);
+    return this;
+  }
+
+  /**
+   * Specify whether duplicate query results will be eliminated. A true value will cause duplicates
+   * to be eliminated. A false value will cause duplicates to be retained. If distinct has not been
+   * specified, duplicate results must be retained. This method only overrides the return type of
+   * the corresponding <code>AbstractQuery</code> method.
+   * 
+   * @param distinct boolean value specifying whether duplicate results must be eliminated from the
+   *        query result or whether they must be retained
+   * @return this
+   */
+  public Finder<ENTITY> distinct(boolean distinct) {
+    cq.distinct(distinct);
+    return this;
+  }
+
+  public Finder<ENTITY> in(SingularAttribute<Model, Long> attribute, List<E> values) {
+    if (attribute != null) {
+      cb.isTrue(root.get(attribute).in(values));
+    }
+    return this;
+  }
+
+  public Finder<ENTITY> in(SingularAttribute<ENTITY, ? extends Model> joinEntity,
+      SingularAttribute<Model, Long> attribute, long value) {
+    if (joinEntity != null && attribute != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin(joinEntity);
+      predicates.add(cb.lessThanOrEqualTo(rootJoinEntity.get(attribute.getName()), (long) value));
+    }
     return this;
   }
 
