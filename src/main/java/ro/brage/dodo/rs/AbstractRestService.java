@@ -16,21 +16,53 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.jpa.mapper.qualifiers;
+package ro.brage.dodo.rs;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import org.mapstruct.Qualifier;
+import java.util.List;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
+import ro.brage.dodo.jpa.AbstractDTOModel;
 
 /**
  *
  * @author Dorin Brage
+ * @param <DTO>
  */
-@Qualifier
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
-public @interface LoadEntity {
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public interface AbstractRestService<DTO extends AbstractDTOModel> {
+
+  @GET
+  @Path("/")
+  public List<DTO> getAll(@Context SecurityContext sc);
+
+  @POST
+  @Path("/")
+  public DTO create(DTO entity, @Context SecurityContext sc);
+
+  @PUT
+  @Path("/{guid}")
+  public DTO updateByGuid(@PathParam("guid") String guid, DTO entity, @Context SecurityContext sc);
+
+  @GET
+  @Path("/{guid}")
+  public DTO getByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+
+  @DELETE
+  @Path("/{guid}")
+  public boolean deleteByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+
+  @GET
+  @Path("/load/{guid}")
+  public DTO loadByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
 
 }

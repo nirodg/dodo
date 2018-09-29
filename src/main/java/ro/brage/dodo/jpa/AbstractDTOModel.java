@@ -16,39 +16,63 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
+package ro.brage.dodo.jpa;
 
-package com.brage.dodo.i18n;
-
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
+ *
  * @author Dorin Brage
  */
-public class Translation {
+public class AbstractDTOModel implements Serializable {
 
-  private ResourceBundle bundle;
-  protected String baseName;
-  protected Locale locale;
+  private static final long serialVersionUID = -4361997507068841444L;
 
-  private final static String SUFIX = "[]";
+  private String guid;
+  private String createdBy;
+  private String updatedBy;
+  private Date createdOn;
+  private Date updatedOn;
 
-  public Translation(String baseName, Locale locale) {
-    this.bundle = ResourceBundle.getBundle(baseName, locale);
-    this.baseName = baseName;
-    this.locale = locale;
+  public String getGuid() {
+    return guid;
   }
 
-  public String getTranslation(String value) {
-    if (bundle.containsKey(value)) {
-      return bundle.getString(value);
-    }
-    return value + SUFIX;
+  public void setGuid(String guid) {
+    this.guid = guid;
   }
 
-  public String getTranslation(Enum<?> key) {
-    String value = key.getClass().getSimpleName() + "." + key.toString();
-    return getTranslation(value);
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  public String getUpdatedBy() {
+    return updatedBy;
+  }
+
+  public void setUpdatedBy(String updatedBy) {
+    this.updatedBy = updatedBy;
+  }
+
+  public Date getCreatedOn() {
+    return createdOn;
+  }
+
+  public void setCreatedOn(Date createdOn) {
+    this.createdOn = createdOn;
+  }
+
+  public Date getUpdatedOn() {
+    return updatedOn;
+  }
+
+  public void setUpdatedOn(Date updatedOn) {
+    this.updatedOn = updatedOn;
   }
 
 }

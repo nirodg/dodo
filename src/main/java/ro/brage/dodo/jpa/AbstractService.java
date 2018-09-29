@@ -16,16 +16,16 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.jpa;
+package ro.brage.dodo.jpa;
 
 import java.lang.reflect.ParameterizedType;
+import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -35,9 +35,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.brage.dodo.jpa.enums.JpaErrorKeys;
-import com.brage.dodo.jpa.utils.JpaLog;
-import com.brage.dodo.jpa.utils.QueryParams;
+import ro.brage.dodo.jpa.enums.JpaErrorKeys;
+import ro.brage.dodo.jpa.utils.JpaLog;
+import ro.brage.dodo.jpa.utils.QueryParams;
 
 /**
  *
@@ -49,8 +49,15 @@ public abstract class AbstractService<ENTITY extends Model> {
 
   private Logger LOG = LoggerFactory.getLogger(AbstractService.class);
 
+
+  protected final static String HINT_FETCH_GRAPH = "javax.persistence.fetchgraph";
+  protected final static String HINT_LOAD_GRAPH = "javax.persistence.loadgraph";
+
   @PersistenceContext
   private EntityManager entityManager;
+
+  @Inject
+  private Principal principal;
 
   protected CriteriaBuilder cb;
   protected CriteriaQuery<ENTITY> cq;
@@ -78,6 +85,8 @@ public abstract class AbstractService<ENTITY extends Model> {
    */
   @TransactionAttribute(TransactionAttributeType.REQUIRED)
   public ENTITY create(ENTITY object) {
+    object.setCreatedBy(principal.getName());
+    object.setUpdatedBy(principal.getName());
     entityManager.persist(object);
     return object;
   }
@@ -88,7 +97,7 @@ public abstract class AbstractService<ENTITY extends Model> {
    * @param guid the GUID
    * @return the ENTITY object
    */
-  public ENTITY findByGuid(String guid) {
+  public ENTITY findByGuid(Object guid) {
     return entityManager.find(entityClass, guid);
   }
 
@@ -100,9 +109,10 @@ public abstract class AbstractService<ENTITY extends Model> {
    * @return
    */
   @TransactionAttribute(TransactionAttributeType.REQUIRED)
-  public ENTITY updateByGuid(String guid, ENTITY entity) {
+  public ENTITY updateByGuid(Object guid, ENTITY entity) {
     ENTITY objectToUpdate = findByGuid(guid);
     if (objectToUpdate != null) {
+      objectToUpdate.setUpdatedBy(principal.getName());
       return create(objectToUpdate);
     }
     return null;
@@ -115,7 +125,7 @@ public abstract class AbstractService<ENTITY extends Model> {
    * @return TRUE if the entity is deleted, otherwise FALSE
    */
   @TransactionAttribute(TransactionAttributeType.REQUIRED)
-  public boolean deleteByGuid(String guid) {
+  public boolean deleteByGuid(Object guid) {
     try {
       ENTITY toDelete = findByGuid(guid);
       entityManager.remove(toDelete);
@@ -126,14 +136,21 @@ public abstract class AbstractService<ENTITY extends Model> {
     }
   }
 
+  public ENTITY loadByGuid(String guid) {
+    cq.where(cb.equal(root.get(Model.GUID), guid));
+    typedQuery = entityManager.createQuery(cq);
+    typedQuery.setHint(HINT_LOAD_GRAPH, entityClass.getSimpleName() + ".loadByGuid");
+    return typedQuery.getSingleResult();
+  }
+
   /**
    * Get all entities using namedQuery
    *
    * @return return a list of entities
    */
-  public Set<ENTITY> getAll() {
+  public List<ENTITY> getAll() {
     Query query = entityManager.createNamedQuery(entityClass.getSimpleName() + ".findAll");
-    return new HashSet<>(query.getResultList());
+    return query.getResultList();
   }
 
   public EntityManager getEntityManager() {
@@ -160,7 +177,7 @@ public abstract class AbstractService<ENTITY extends Model> {
     try {
       return (ENTITY) query.getSingleResult();
     } catch (Exception e) {
-      JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, null);
+      JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
     }
     return null;
   }
@@ -178,7 +195,7 @@ public abstract class AbstractService<ENTITY extends Model> {
     try {
       return query.getResultList();
     } catch (Exception e) {
-      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES,
+      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
           new ArrayList<>());
     }
 

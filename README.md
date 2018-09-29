@@ -76,6 +76,45 @@ public class CarService extends AbstractService<Car, CarDTO> {
         .findItem();
   }
 
+  public Car getByOwnerIdCard(String ownerIdCard) throws Exception {
+    return new Finder<>(this)
+        .equalTo(Car_.owner, Client_.idCard, ownerIdCard)
+        .findItem();
+  }
+  
+  public List<Car> getByMakeAndModel(String make, String model) throws Exception {
+    return new Finder<>(this)
+        .equalTo(Car_.make, make)
+        .equalTo(Car_.model, model)
+        .findItems();
+  }
+
+  public List<Car> getByModelAndFromYearToCurrent(String model, Date fromYear) throws Exception {
+    return new Finder<>(this)
+        .equalTo(Car_.model, model)
+        .between(Car_.year, fromYear, new Date())
+        .orderBy(Car_.year, OrderBy.ASC)
+        .findItems();
+  }
+
+  public List<Car> filterByYears(Date from, Date to) throws Exception {
+    return new Finder<>(this)
+        .between(Car_.year, from, to)
+        .orderBy(Car_.year, OrderBy.ASC)
+        .maxItems(5)
+        .findItems();
+  }
+
+  public void disableCar(String id) {
+    String updateQuery = "UPDATE Car c SET c.enabled=0 where c.id:id";
+    getEntityManager().createQuery(updateQuery).setParameter("id", id).executeUpdate();
+  }
+
+  public Long getTotalEntities() {
+    return getCount();
+  }  
+ 
+  
 }
 ```
 

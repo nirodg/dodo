@@ -16,7 +16,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package com.brage.dodo.jpa;
+package ro.brage.dodo.jpa;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -28,16 +28,20 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 /**
  *
  * @author Dorin Brage
  */
 @MappedSuperclass
-public abstract class Model implements Serializable {
+public class Model implements Serializable {
 
   private static final long serialVersionUID = 7195951657243537422L;
 
+  @Transient
+  public final static String GUID = "guid";
+  
   @Id
   @Column(name = "GUID")
   private String guid;
@@ -58,13 +62,12 @@ public abstract class Model implements Serializable {
   @PrePersist
   public void prePersist() {
     guid = UUID.randomUUID().toString();
-    createdBy = "sys";
     createdOn = new Date();
+    updatedOn = new Date();
   }
 
   @PreUpdate
   public void preUpdate() {
-    updatedBy = "sys";
     updatedOn = new Date();
   }
 
