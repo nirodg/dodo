@@ -20,7 +20,7 @@ public class Arrays {
      * @return a Map
      * @see DEFAULT_QUANTITY_PER_LIST
      */
-    public static Map<Long, List<Object>> splitList(List<Object> list) {
+    public static Map<Long, List<Object>> splitList(List<?> list) {
         return splitList(list, DEFAULT_QUANTITY_PER_LIST);
     }
 
@@ -32,7 +32,7 @@ public class Arrays {
      * @return a Map
      * @see DEFAULT_QUANTITY_PER_LIST
      */
-    public static Map<Long, List<Object>> splitList(List<Object> list, int quantityPerList) {
+    public static Map<Long, List<Object>> splitList(List<?> list, int quantityPerList) {
         Map<Long, List<Object>> mapList = new HashMap<>();
 
         float dividers = Math.round(((double) list.size() / quantityPerList));

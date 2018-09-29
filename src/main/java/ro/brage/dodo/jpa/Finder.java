@@ -76,6 +76,8 @@ public class Finder<ENTITY extends Model> {
   /** Predicates **/
   protected List<Predicate> predicates = new ArrayList<>();
 
+  protected boolean distinct;
+
   Integer maxResults;
 
   public Finder(AbstractService<ENTITY> service) throws Exception {
@@ -129,6 +131,8 @@ public class Finder<ENTITY extends Model> {
     if (!predicates.isEmpty()) {
       cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
     }
+
+    cq.distinct(distinct);
 
     typedQuery = entityManager.createQuery(cq).setFlushMode(FlushModeType.AUTO);
 
@@ -1264,8 +1268,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> distinct() {
-    cq.distinct(true);
-    return this;
+    return distinct(true);
   }
 
   /**
@@ -1279,29 +1282,20 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   public Finder<ENTITY> distinct(boolean distinct) {
-    cq.distinct(distinct);
+    this.distinct = distinct;
     return this;
   }
 
-  public Finder<ENTITY> in(SingularAttribute<Model, Long> attribute, List<Object> values) {
+  public Finder<ENTITY> in(SingularAttribute<Model, ?> attribute, List<?> values) {
     if (attribute != null) {
-        
-        Map<Long, List<Object>> mapValues = Arrays.splitList(values);
-        mapValues.entrySet().forEach((map) -> {
-            cb.isTrue(root.get(attribute).in(map.getValue()));
-        }); //cb.isTrue(root.get(attribute).in(values));
+      Map<Long, List<Object>> mapValues = Arrays.splitList(values);
+      mapValues.entrySet().forEach((map) -> {
+        predicates.add(cb.isTrue(root.get(attribute).in(map.getValue())));
+      });
     }
     return this;
   }
 
-  public Finder<ENTITY> in(SingularAttribute<ENTITY, ? extends Model> joinEntity,
-      SingularAttribute<Model, Long> attribute, long value) {
-    if (joinEntity != null && attribute != null) {
-      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin(joinEntity);
-      predicates.add(cb.lessThanOrEqualTo(rootJoinEntity.get(attribute.getName()), (long) value));
-    }
-    return this;
-  }
 
   /**
    * Create a left join to the specified single-valued attribute
@@ -1331,7 +1325,7 @@ public class Finder<ENTITY extends Model> {
 
     Join<ENTITY, ? extends Model> joinEntity = null;
 
-    LOG.info("=> Check already defined join for the entity");
+    LOG.info("=> Check already defined joins for the entity");
 
 
     if (root.getJoins().isEmpty()) {
