@@ -625,8 +625,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the DATE value
    * @return this
    */
-  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<? extends Model, Date> attribute,
-      Date value) {
+  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<? extends Model, Date> attribute, Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.greaterThanOrEqualTo(root.get(attribute.getName()), (Date) value));
     }
@@ -1018,8 +1017,8 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date value
    * @return this
    */
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<? extends Model, Date> attribute,
-      Date value) {
+
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<? extends Model, Date> attribute, Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute.getName()), (Date) value));
     }
@@ -1326,7 +1325,6 @@ public class Finder<ENTITY extends Model> {
     Join<ENTITY, ? extends Model> joinEntity = null;
 
     LOG.info("=> Check already defined joins for the entity");
-
 
     if (root.getJoins().isEmpty()) {
       return root.join(entity, joinType);
