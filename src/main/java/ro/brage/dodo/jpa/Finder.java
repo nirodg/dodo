@@ -21,6 +21,7 @@ package ro.brage.dodo.jpa;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
 import javax.persistence.TypedQuery;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.brage.dodo.jpa.enums.JpaErrorKeys;
 import ro.brage.dodo.jpa.enums.OrderBy;
+import ro.brage.dodo.jpa.utils.Arrays;
 import ro.brage.dodo.jpa.utils.JpaLog;
 
 /**
@@ -73,6 +75,8 @@ public class Finder<ENTITY extends Model> {
 
   /** Predicates **/
   protected List<Predicate> predicates = new ArrayList<>();
+
+  protected boolean distinct;
 
   Integer maxResults;
 
@@ -127,6 +131,8 @@ public class Finder<ENTITY extends Model> {
     if (!predicates.isEmpty()) {
       cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
     }
+
+    cq.distinct(distinct);
 
     typedQuery = entityManager.createQuery(cq).setFlushMode(FlushModeType.AUTO);
 
@@ -1011,6 +1017,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date value
    * @return this
    */
+
   public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<? extends Model, Date> attribute, Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute.getName()), (Date) value));
@@ -1255,6 +1262,41 @@ public class Finder<ENTITY extends Model> {
   }
 
   /**
+   * Will eliminate duplicated query results.
+   * 
+   * @return this
+   */
+  public Finder<ENTITY> distinct() {
+    return distinct(true);
+  }
+
+  /**
+   * Specify whether duplicate query results will be eliminated. A true value will cause duplicates
+   * to be eliminated. A false value will cause duplicates to be retained. If distinct has not been
+   * specified, duplicate results must be retained. This method only overrides the return type of
+   * the corresponding <code>AbstractQuery</code> method.
+   * 
+   * @param distinct boolean value specifying whether duplicate results must be eliminated from the
+   *        query result or whether they must be retained
+   * @return this
+   */
+  public Finder<ENTITY> distinct(boolean distinct) {
+    this.distinct = distinct;
+    return this;
+  }
+
+  public Finder<ENTITY> in(SingularAttribute<Model, ?> attribute, List<?> values) {
+    if (attribute != null) {
+      Map<Long, List<Object>> mapValues = Arrays.splitList(values);
+      mapValues.entrySet().forEach((map) -> {
+        predicates.add(cb.isTrue(root.get(attribute).in(map.getValue())));
+      });
+    }
+    return this;
+  }
+
+
+  /**
    * Create a left join to the specified single-valued attribute
    * 
    * @param entity the generated metamodel
@@ -1282,8 +1324,7 @@ public class Finder<ENTITY extends Model> {
 
     Join<ENTITY, ? extends Model> joinEntity = null;
 
-    LOG.info("=> Check already defined join for the entity");
-
+    LOG.info("=> Check already defined joins for the entity");
 
     if (root.getJoins().isEmpty()) {
       return root.join(entity, joinType);
