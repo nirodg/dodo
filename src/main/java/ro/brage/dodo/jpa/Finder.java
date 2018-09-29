@@ -21,6 +21,7 @@ package ro.brage.dodo.jpa;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
 import javax.persistence.TypedQuery;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.brage.dodo.jpa.enums.JpaErrorKeys;
 import ro.brage.dodo.jpa.enums.OrderBy;
+import ro.brage.dodo.jpa.utils.Arrays;
 import ro.brage.dodo.jpa.utils.JpaLog;
 
 /**
@@ -1281,9 +1283,13 @@ public class Finder<ENTITY extends Model> {
     return this;
   }
 
-  public Finder<ENTITY> in(SingularAttribute<Model, Long> attribute, List<E> values) {
+  public Finder<ENTITY> in(SingularAttribute<Model, Long> attribute, List<Object> values) {
     if (attribute != null) {
-      cb.isTrue(root.get(attribute).in(values));
+        
+        Map<Long, List<Object>> mapValues = Arrays.splitList(values);
+        mapValues.entrySet().forEach((map) -> {
+            cb.isTrue(root.get(attribute).in(map.getValue()));
+        }); //cb.isTrue(root.get(attribute).in(values));
     }
     return this;
   }
