@@ -1,13 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ro.brage</groupId>
-    <artifactId>dodo</artifactId>
-    <version>2.0.0</version>
-    <packaging>jar</packaging>
-    <name>dodo</name>
+	<groupId>ro.brage</groupId>
+	<artifactId>dodo</artifactId>
+	<version>2.0.0</version>
+	<packaging>jar</packaging>
+	<name>dodo</name>
 
     <properties>
         <org.mapstruct.version>1.2.0.Final</org.mapstruct.version>
@@ -60,56 +61,69 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${org.mapstruct.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.bsc.maven</groupId>
-                <artifactId>maven-processor-plugin</artifactId>
-                <version>3.3.3</version>
-                <executions>
-                    <execution>
-                        <id>process</id>
-                        <phase>generate-sources</phase><!-- this is actually the default, could be omitted -->
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/src/main/java</outputDirectory>
-                            <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>hibernate-jpamodelgen</artifactId>
-                        <version>5.2.14.Final</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5.1</version>
+				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>${org.mapstruct.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.bsc.maven</groupId>
+				<artifactId>maven-processor-plugin</artifactId>
+				<version>3.3.3</version>
+				<executions>
+					<execution>
+						<id>process</id>
+						<phase>generate-sources</phase><!-- this is actually the default, could 
+							be omitted -->
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/src/main/java</outputDirectory>
+							<outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.hibernate</groupId>
+						<artifactId>hibernate-jpamodelgen</artifactId>
+						<version>5.2.14.Final</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
 
-    <scm>
-        <url>https://github.com/nirodg/dodo</url>
-        <connection>scm:git:git://github.com/nirodg/dodo.git</connection>
-        <developerConnection>scm:git:git@github.com:nirodg/dodo.git</developerConnection>
-    </scm>
+	<scm>
+		<url>https://github.com/nirodg/dodo</url>
+		<connection>scm:git:git://github.com/nirodg/dodo.git</connection>
+		<developerConnection>scm:git:git@github.com:nirodg/dodo.git</developerConnection>
+	</scm>
 
+
+	<distributionManagement>
+		<repository>
+			<id>nexus</id>
+			<url>${url}</url>
+		</repository>
+		<snapshotRepository>
+			<id>nexus</id>
+			<url>${url}</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
 </project>
