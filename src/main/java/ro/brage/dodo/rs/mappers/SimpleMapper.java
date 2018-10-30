@@ -1,4 +1,4 @@
-package ro.brage.dodo.jpa.mapper;
+package ro.brage.dodo.rs.mappers;
 
 import org.mapstruct.MapperConfig;
 import ro.brage.dodo.jpa.DtoModel;

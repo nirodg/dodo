@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import ro.brage.dodo.jpa.DtoModel;
 import ro.brage.dodo.jpa.EntityService;
 import ro.brage.dodo.jpa.Model;
-import ro.brage.dodo.jpa.mapper.AdvancedMapper;
+import ro.brage.dodo.rs.mappers.AdvancedMapper;
 
 /**
  * The abstract rest service bean class

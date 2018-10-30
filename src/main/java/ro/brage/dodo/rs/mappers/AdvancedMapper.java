@@ -16,7 +16,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.jpa.mapper;
+package ro.brage.dodo.rs.mappers;
 
 import java.util.List;
 import org.mapstruct.IterableMapping;
@@ -24,7 +24,7 @@ import org.mapstruct.MapperConfig;
 import org.mapstruct.MappingTarget;
 import ro.brage.dodo.jpa.DtoModel;
 import ro.brage.dodo.jpa.Model;
-import ro.brage.dodo.jpa.mapper.qualifiers.LoadEntity;
+import ro.brage.dodo.rs.mappers.qualifiers.LoadEntity;
 
 /**
  * Advanced mapper
