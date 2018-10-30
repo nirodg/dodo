@@ -16,63 +16,53 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.jpa;
+package ro.brage.dodo.rs;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.util.List;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
+import ro.brage.dodo.jpa.DtoModel;
 
 /**
  *
  * @author Dorin Brage
+ * @param <DTO>
  */
-public class AbstractDTOModel implements Serializable {
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public interface RestApi<DTO extends DtoModel> {
 
-  private static final long serialVersionUID = -4361997507068841444L;
+  @GET
+  @Path("/")
+  public List<DTO> getAll(@Context SecurityContext sc);
 
-  private String guid;
-  private String createdBy;
-  private String updatedBy;
-  private Date createdOn;
-  private Date updatedOn;
+  @POST
+  @Path("/")
+  public DTO create(DTO entity, @Context SecurityContext sc);
 
-  public String getGuid() {
-    return guid;
-  }
+  @PUT
+  @Path("/{guid}")
+  public DTO updateByGuid(@PathParam("guid") String guid, DTO entity, @Context SecurityContext sc);
 
-  public void setGuid(String guid) {
-    this.guid = guid;
-  }
+  @GET
+  @Path("/{guid}")
+  public DTO getByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
 
-  public String getCreatedBy() {
-    return createdBy;
-  }
+  @DELETE
+  @Path("/{guid}")
+  public boolean deleteByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
 
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  public String getUpdatedBy() {
-    return updatedBy;
-  }
-
-  public void setUpdatedBy(String updatedBy) {
-    this.updatedBy = updatedBy;
-  }
-
-  public Date getCreatedOn() {
-    return createdOn;
-  }
-
-  public void setCreatedOn(Date createdOn) {
-    this.createdOn = createdOn;
-  }
-
-  public Date getUpdatedOn() {
-    return updatedOn;
-  }
-
-  public void setUpdatedOn(Date updatedOn) {
-    this.updatedOn = updatedOn;
-  }
+  @GET
+  @Path("/load/{guid}")
+  public DTO loadByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
 
 }

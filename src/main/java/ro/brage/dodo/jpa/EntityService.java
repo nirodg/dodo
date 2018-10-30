@@ -40,14 +40,15 @@ import ro.brage.dodo.jpa.utils.JpaLog;
 import ro.brage.dodo.jpa.utils.QueryParams;
 
 /**
- *
+ * The Abstract Service
+ * 
  * @author Dorin Brage
  * @param <ENTITY> the ENTITY
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractService<ENTITY extends Model> {
+public abstract class EntityService<ENTITY extends Model> {
 
-  private Logger LOG = LoggerFactory.getLogger(AbstractService.class);
+  private Logger LOG = LoggerFactory.getLogger(EntityService.class);
 
 
   protected final static String HINT_FETCH_GRAPH = "javax.persistence.fetchgraph";

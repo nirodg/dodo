@@ -16,53 +16,49 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.rs;
+package ro.brage.dodo.jpa.mapper;
 
 import java.util.List;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.SecurityContext;
-import ro.brage.dodo.jpa.AbstractDTOModel;
+import org.mapstruct.IterableMapping;
+import org.mapstruct.MapperConfig;
+import org.mapstruct.MappingTarget;
+import ro.brage.dodo.jpa.DtoModel;
+import ro.brage.dodo.jpa.Model;
+import ro.brage.dodo.jpa.mapper.qualifiers.LoadEntity;
 
 /**
- *
+ * Advanced mapper
+ * 
  * @author Dorin Brage
+ * 
+ * @param <Entity>
  * @param <DTO>
  */
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
-public interface AbstractRestService<DTO extends AbstractDTOModel> {
+@MapperConfig(componentModel = "cdi")
+public abstract class AdvancedMapper<Entity extends Model, DTO extends DtoModel>
+    extends SimpleMapper<Entity, DTO> {
 
-  @GET
-  @Path("/")
-  public List<DTO> getAll(@Context SecurityContext sc);
 
-  @POST
-  @Path("/")
-  public DTO create(DTO entity, @Context SecurityContext sc);
+  public abstract void updateEntity(DTO dto, @MappingTarget Entity entity);
 
-  @PUT
-  @Path("/{guid}")
-  public DTO updateByGuid(@PathParam("guid") String guid, DTO entity, @Context SecurityContext sc);
+  public abstract void updateDTO(@MappingTarget DTO dto, Entity entity);
 
-  @GET
-  @Path("/{guid}")
-  public DTO getByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+  public abstract List<DTO> findDTOs(List<Entity> entities);
 
-  @DELETE
-  @Path("/{guid}")
-  public boolean deleteByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+  public abstract List<Entity> findEntities(List<DTO> dtos);
 
-  @GET
-  @Path("/load/{guid}")
-  public DTO loadByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+  @LoadEntity
+  @IterableMapping(qualifiedBy = {LoadEntity.class})
+  public abstract List<DTO> loadDTOs(List<Entity> entities);
+
+  @LoadEntity
+  @IterableMapping(qualifiedBy = {LoadEntity.class})
+  public abstract List<Entity> loadEntities(List<DTO> dtos);
+
+  @LoadEntity
+  public abstract Entity load(DTO dto);
+
+  @LoadEntity
+  public abstract DTO load(Entity entity);
 
 }

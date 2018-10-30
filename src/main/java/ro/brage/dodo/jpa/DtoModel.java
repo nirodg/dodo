@@ -16,49 +16,63 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.jpa.mapper;
+package ro.brage.dodo.jpa;
 
-import java.util.List;
-import org.mapstruct.IterableMapping;
-import org.mapstruct.MapperConfig;
-import org.mapstruct.MappingTarget;
-import ro.brage.dodo.jpa.AbstractDTOModel;
-import ro.brage.dodo.jpa.Model;
-import ro.brage.dodo.jpa.mapper.qualifiers.LoadEntity;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
  * @author Dorin Brage
- * @param <Entity>
- * @param <DTO>
  */
-@MapperConfig(componentModel = "cdi")
-public abstract class AbstractModelMapper<Entity extends Model, DTO extends AbstractDTOModel> {
+public class DtoModel implements Serializable {
 
-  public abstract Entity find(DTO entity);
+  private static final long serialVersionUID = -4361997507068841444L;
 
-  public abstract DTO find(Entity entity);
+  private String guid;
+  private String createdBy;
+  private String updatedBy;
+  private Date createdOn;
+  private Date updatedOn;
 
-  public abstract void updateEntity(DTO dto, @MappingTarget Entity entity);
+  public String getGuid() {
+    return guid;
+  }
 
-  public abstract void updateDTO(@MappingTarget DTO dto, Entity entity);
+  public void setGuid(String guid) {
+    this.guid = guid;
+  }
 
-  public abstract List<DTO> findDTOs(List<Entity> entities);
+  public String getCreatedBy() {
+    return createdBy;
+  }
 
-  public abstract List<Entity> findEntities(List<DTO> dtos);
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
 
-  @LoadEntity
-  @IterableMapping(qualifiedBy= {LoadEntity.class})
-  public abstract List<DTO> loadDTOs(List<Entity> entities);
+  public String getUpdatedBy() {
+    return updatedBy;
+  }
 
-  @LoadEntity
-  @IterableMapping(qualifiedBy= {LoadEntity.class})
-  public abstract List<Entity> loadEntities(List<DTO> dtos);
+  public void setUpdatedBy(String updatedBy) {
+    this.updatedBy = updatedBy;
+  }
 
-  @LoadEntity
-  public abstract Entity load(DTO dto);
+  public Date getCreatedOn() {
+    return createdOn;
+  }
 
-  @LoadEntity
-  public abstract DTO load(Entity entity);
+  public void setCreatedOn(Date createdOn) {
+    this.createdOn = createdOn;
+  }
+
+  public Date getUpdatedOn() {
+    return updatedOn;
+  }
+
+  public void setUpdatedOn(Date updatedOn) {
+    this.updatedOn = updatedOn;
+  }
 
 }

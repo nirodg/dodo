@@ -46,7 +46,7 @@ import ro.brage.dodo.jpa.utils.JpaLog;
  * <pre>
  * &#64;Stateless
  * &#64;TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
- * public class CarService extends AbstractService<Car> {
+ * public class CarService extends EntityService<Car> {
  * 
  *   public Car getByLicensePlate(String licensePlate) {
  *     return new Finder<>(this).equalTo(Car_.make, make).equalTo(Car_.model, model).findItems();
@@ -64,7 +64,7 @@ public class Finder<ENTITY extends Model> {
   private final Logger LOG = LoggerFactory.getLogger(Finder.class);
 
   /** Used for accessing the injected Persistent Manager **/
-  AbstractService<ENTITY> service;
+  EntityService<ENTITY> service;
 
   EntityManager entityManager;
 
@@ -80,7 +80,7 @@ public class Finder<ENTITY extends Model> {
 
   Integer maxResults;
 
-  public Finder(AbstractService<ENTITY> service) throws Exception {
+  public Finder(EntityService<ENTITY> service) throws Exception {
 
     if (service == null) {
       throw new Exception("The service cannot be null!");
