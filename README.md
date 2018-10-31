@@ -1,5 +1,6 @@
 # dodo
-mini framework with JEE technologies
+
+A bunch of classes build with JEE technologies under the hood for making easier the development of microservices.
 
 For the showcase please [click here](https://github.com/nirodg/dodo-example/)
 
@@ -9,10 +10,11 @@ For the showcase please [click here](https://github.com/nirodg/dodo-example/)
 # Defining the entity
 ```java
 // imports
-import com.brage.dodo.jpa.AbstractModel;
+import ro.brage.dodo.jpa.Model;
 
 @Entity
 @Table(name = "CAR")
+@Finder
 public class Car extends Model {
      
     @Column(name = "MAKE")
@@ -29,13 +31,14 @@ public class Car extends Model {
 }
 ```
 
+For the usage of ``@Finder`` please check out [this link](#)
 
 # Define a DTO
 ```java
 // imports
-import com.brage.dodo.jpa.AbstractDTOModel;
+import ro.brage.dodo.rs.DtoModel;
 
-public class CarDTO extends AbstractDTOModel {
+public class CarDTO extends DtoModel {
      
      private String make;
      
@@ -51,52 +54,47 @@ public class CarDTO extends AbstractDTOModel {
 # Defining a mapper
 ```java
 // imports
-import com.brage.dodo.jpa.mapper.AbstractModelMapper;
+import ro.brage.dodo.rs.mappers.AdvancedMapper;
 
 @Mapper(componentModel = "cdi")
-public abstract class CarMapper extends AbstractModelMapper<Car, CarDTO> {
+public abstract class CarMapper extends AdvancedMapper<Car, CarDTO> {
 
-     // override method if needed
+     // override methods if needed
 
 }
 ```
+
+For simple entities where you'll need only Entity < > DTO methods (from <- -> to).
+It can be an Entity with primitive fields (Strings included) or a simple Enum class.
+
+```java
+import ro.brage.dodo.rs.mappers. SimpleMapper;
+
+@Mapper(componentModel = "cdi")
+public abstract class ItemMapper extends SimpleMapper<Item, ItemDto> {
+
+}
+```
+
 # Defining the service
+Pretty much straight forward, there are a few ways how to fetch the data and it's as follows: 
+
+
 ```java
 // imports
-import com.brage.dodo.jpa.AbstractService;
-import com.brage.dodo.jpa.Finder;
+import ro.brage.dodo.jpa.EntityService;
+import ro.brage.dodo.jpa.Finder;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class CarService extends AbstractService<Car, CarDTO> {
+public class CarService extends EntityService<Car> {
 
   public Car getByLicensePlate(String licensePlate) throws Exception {
     return new Finder<>(this)
         .equalTo(Car_.licensePlate, licensePlate)
         .findItem();
   }
-
-  public Car getByOwnerIdCard(String ownerIdCard) throws Exception {
-    return new Finder<>(this)
-        .equalTo(Car_.owner, Client_.idCard, ownerIdCard)
-        .findItem();
-  }
   
-  public List<Car> getByMakeAndModel(String make, String model) throws Exception {
-    return new Finder<>(this)
-        .equalTo(Car_.make, make)
-        .equalTo(Car_.model, model)
-        .findItems();
-  }
-
-  public List<Car> getByModelAndFromYearToCurrent(String model, Date fromYear) throws Exception {
-    return new Finder<>(this)
-        .equalTo(Car_.model, model)
-        .between(Car_.year, fromYear, new Date())
-        .orderBy(Car_.year, OrderBy.ASC)
-        .findItems();
-  }
-
   public List<Car> filterByYears(Date from, Date to) throws Exception {
     return new Finder<>(this)
         .between(Car_.year, from, to)
@@ -104,10 +102,26 @@ public class CarService extends AbstractService<Car, CarDTO> {
         .maxItems(5)
         .findItems();
   }
+  
+  // Using the generated class for Entities annotated with @Finder
+  public List<Car> getByMakeAndModel(String make, String model) throws Exception {
+    return new CarFinder(this)
+        .make().equalsTo(make)
+        .model().equalsTo(model)
+        .findItems();
+  }
 
-  public void disableCar(String id) {
-    String updateQuery = "UPDATE Car c SET c.enabled=0 where c.id:id";
-    getEntityManager().createQuery(updateQuery).setParameter("id", id).executeUpdate();
+  // Static queries
+  public void disableCarByGuid(String guid) {
+    String updateQuery = "UPDATE Car c SET c.enabled=0 where c.guid: guid";
+    getEntityManager().createQuery(updateQuery).setParameter("guid", guid).executeUpdate();
+  }
+
+  // Static queries with inherited methods and the QueryParams class
+  public List<Car> findEnabledCarsByGuid() {
+	    return getService().getResults("SELECT c FROM Car c WHERE c.enabled=1",
+	            new QueryParams()
+	            	.addParameter(Todo_.enabled, true));
   }
 
   public Long getTotalEntities() {
@@ -142,23 +156,22 @@ For more information regarding Jax-RS please check the [Oracle's documentation](
 # The Rest Service
 ```java
 // imports
-import com.brage.dodo.rs.AbstractRestServiceBean;
+import ro.brage.dodo.rs.RestApiService;
 
 @Stateless
 @Local(CarRestService.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class CarRestServiceBean extends AbstractRestServiceBean<Car, CarDTO, CarService, CarMapper> implements CarRestService {
+public class CarRestServiceBean extends RestApiService<Car, CarDTO, CarService, CarMapper> implements TodoRestApi {
 
     @Override
     public CarDTO getByLicensePlate(String licensePlate) {
          getLogger().info("getByLicensePlate({})", licensePlate);
 
          Car car = getService().getByLicensePlate(licensePlate);
-         return getMapper().find(car);
+         return getMapper().map(car);
     }
 
 }
-
 ```
 
 # Versioning
@@ -167,7 +180,7 @@ public class CarRestServiceBean extends AbstractRestServiceBean<Car, CarDTO, Car
 
 # Contribute
 
-In case you would like to contribute updating the documentation, improving the functionalities, reporting issues or fixing them please, you\`re more than welcome 😄 . However, please have a look to the already defined [contribute](/docs/CONTRIBUTING.md)'s guide
+In case you would like to contribute updating the documentation, improving the functionalities, reporting issues or fixing them please, you're more than welcome 😄 . However, please have a look to the already defined [contribute](/docs/CONTRIBUTING.md)'s guide
 
 # License
 
