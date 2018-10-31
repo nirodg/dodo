@@ -178,7 +178,7 @@ public abstract class EntityService<ENTITY extends Model> {
     try {
       return (ENTITY) query.getSingleResult();
     } catch (Exception e) {
-      JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
+      JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
     }
     return null;
   }
@@ -196,7 +196,7 @@ public abstract class EntityService<ENTITY extends Model> {
     try {
       return query.getResultList();
     } catch (Exception e) {
-      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
+      return (List<ENTITY>) JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
           new ArrayList<>());
     }
 

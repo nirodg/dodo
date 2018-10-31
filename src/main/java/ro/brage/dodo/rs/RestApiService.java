@@ -24,7 +24,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ro.brage.dodo.jpa.DtoModel;
 import ro.brage.dodo.jpa.EntityService;
 import ro.brage.dodo.jpa.Model;
 import ro.brage.dodo.rs.mappers.AdvancedMapper;

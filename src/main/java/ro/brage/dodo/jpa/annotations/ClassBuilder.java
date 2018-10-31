@@ -1,3 +1,21 @@
+/*******************************************************************************
+ * Copyright 2018 Dorin Brage
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *******************************************************************************/
 package ro.brage.dodo.jpa.annotations;
 
 import java.io.IOException;
@@ -19,23 +37,23 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.ListAttribute;
-import javax.persistence.metamodel.MapAttribute;
-import javax.persistence.metamodel.SetAttribute;
-import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 import javax.tools.JavaFileObject;
-import javax.ws.rs.ProcessingException;
 import com.google.common.collect.Sets;
 import com.squareup.javawriter.JavaWriter;
 import ro.brage.dodo.jpa.EntityService;
+import ro.brage.dodo.jpa.Model;
 import ro.brage.dodo.jpa.queries.SqlClausule;
 
+/**
+ * The class builder defines the structure of the new generated source (aka template)
+ * 
+ * @author Dorin Brage
+ *
+ */
 public class ClassBuilder {
 
-
   private static final String GENERATED_CLASS_SUFFIX = "Finder";
-  private static final String GENERATED_PACKAGE_SUFFIX = ".finder";
 
   private Elements elements;
   private TypeElement typeAnnotatedClazz;
@@ -44,12 +62,9 @@ public class ClassBuilder {
   private String finalGeneratedClass = null;
   private Set<MethodBuilder> methods;
 
+  private boolean isInitialized;
 
   private JavaWriter jw;
-
-
-
-  private boolean isInitialized; // TODO ??
 
   /**
    * The {@code init() } initializes the builder
@@ -65,7 +80,6 @@ public class ClassBuilder {
       Filer filer, Elements elements) throws Exception {
 
     if (typeAnnotatedClazz == null || filer == null || elements == null) {
-      // throw new ProcessingException(typeAnnotatedClazz, ProcessingError.INIT_PACKAGE);
       throw new Exception("Failed to init package");
     }
 
@@ -93,7 +107,7 @@ public class ClassBuilder {
 
     initWritter();
 
-    initPackage();
+    setPackage();
 
     setImports();
 
@@ -123,44 +137,14 @@ public class ClassBuilder {
 
     jw.emitEmptyLine();
 
-    jw.emitField(String.format("protected Attribute<%s, ?> ",
+    String fieldAttribute = "protected Attribute<%s, ?>";
+    if (annotatedClass.isExtendingModel()) {
+      fieldAttribute = "protected Attribute<? extends Model, ?>";
+    }
+    jw.emitField(String.format(fieldAttribute,
         annotatedClass.getQualifiedName().toString()), "currentField");
 
     jw.emitEmptyLine();
-
-    // define entity's fields
-    /**
-    for (Entry<String, String> field : annotatedClass.getFields().entrySet()) {
-      jw.emitSingleLineComment(annotatedClass.getClassName() + "." + field.getKey(),
-          (Object[]) null);
-
-      String importPrefixUtils = "java.util.";
-      String rexep = "[\\<\\>]";
-      String entity;
-      // Check the type of field and based on that will use a different Attribute
-      if (field.getValue().replaceAll(importPrefixUtils, "").startsWith("List")) {
-        entity = field.getValue().replaceAll(importPrefixUtils + "List", "")
-            .replaceAll(rexep, "");
-        jw.emitField(String.format("public static volatile ListAttribute<%s, %s>",
-            annotatedClass.getClassName(), entity), field.getKey());
-      } else if (field.getValue().replaceAll(importPrefixUtils, "").startsWith("Map")) {
-        entity = field.getValue().replaceAll(importPrefixUtils + "Map", "")
-            .replaceAll(rexep, "");
-        jw.emitField(String.format("public static volatile MapAttribute<%s, %s>",
-            annotatedClass.getClassName(), entity), field.getKey());
-      } else if (field.getValue().replaceAll(importPrefixUtils, "").startsWith("Set")) {
-        entity = field.getValue().replaceAll(importPrefixUtils + "Set", "")
-            .replaceAll(rexep, "");
-        jw.emitField(String.format("public static volatile SetAttribute<%s, %s>",
-            annotatedClass.getClassName(), entity), field.getKey());
-      } else {
-        jw.emitField(String.format("public static volatile SingularAttribute<%s, %s>",
-            annotatedClass.getClassName(), field.getValue()), field.getKey());
-      }
-
-    }
-    jw.emitEmptyLine();
-*/
 
     // Define constructor
     List<String> constructorParameters = Arrays.asList(
@@ -193,11 +177,11 @@ public class ClassBuilder {
           parameters[i] = method.getParameters()[i - 1].getName();
         }
 
-        jw.beginMethod(returnType, method.getName(), getCustomModifier(Modifier.PUBLIC),
+        jw.beginMethod(returnType, method.getName(), Utils.getCustomModifier(Modifier.PUBLIC),
             parameters);
 
       } else {
-        jw.beginMethod(returnType, method.getName(), getCustomModifier(Modifier.PUBLIC));
+        jw.beginMethod(returnType, method.getName(), Utils.getCustomModifier(Modifier.PUBLIC));
       }
 
 
@@ -238,12 +222,12 @@ public class ClassBuilder {
 
     methods = new HashSet<>();
 
+    // Define methods
     for (Entry<String, String> field : annotatedClass.getFields().entrySet()) {
       methods.add(new MethodBuilder(String.format("SqlClausule<%s, %s>", finalGeneratedClass,
           annotatedClass.getQualifiedName().toString()), field.getKey())
               .addStatements("currentField = %s", field.getKey()).addStatements("return this"));
     }
-
 
     for (MethodBuilder method : methods) {
       jw.beginMethod(method.getTypeMethod(), method.getName(), method.getModifiers(), null, null);
@@ -283,9 +267,9 @@ public class ClassBuilder {
   /**
    * Initializes the package
    * 
-   * @throws ProcessingException if it was unsuccessful
+   * @throws Exception if it was unsuccessful
    */
-  private void initPackage() throws Exception {
+  private void setPackage() throws Exception {
     try {
 
       PackageElement pkg = elements.getPackageOf(typeAnnotatedClazz);
@@ -304,7 +288,7 @@ public class ClassBuilder {
   /**
    * Initializes the class
    * 
-   * @throws ProcessingException if it was unsuccessful
+   * @throws Exception if it was unsuccessful
    */
   private void setStartClass() throws Exception {
     String implSqlClausule = String.format("%s<%s, %s>", SqlClausule.class.getSimpleName(),
@@ -313,10 +297,9 @@ public class ClassBuilder {
     try {
 
 
-      // Beggining of the class
-      jw.emitAnnotation(SuppressWarnings.class, "\"unchecked\"");
-
-      jw.beginType(this.finalGeneratedClass, "class", getCustomModifier(Modifier.PUBLIC), null,
+      // Beginning of the class
+      jw.beginType(this.finalGeneratedClass, "class", Utils.getCustomModifier(Modifier.PUBLIC),
+          null,
           implSqlClausule);
       jw.emitEmptyLine();
 
@@ -329,7 +312,7 @@ public class ClassBuilder {
   /**
    * Sets the end of the class
    * 
-   * @throws ProcessingException if it was unsuccessful
+   * @throws Exception if it was unsuccessful
    */
   private void setEndClass() throws Exception {
 
@@ -345,7 +328,7 @@ public class ClassBuilder {
   /**
    * Defines the import classes
    * 
-   * @throws ProcessingException if it was unsuccessful
+   * @throws Exception if it was unsuccessful
    */
   private void setImports() throws Exception {
 
@@ -358,22 +341,25 @@ public class ClassBuilder {
     imports.add(Generated.class.getCanonicalName());
     imports.add(SqlClausule.class.getCanonicalName());
     imports.add(Attribute.class.getCanonicalName());
-    imports.add(SingularAttribute.class.getCanonicalName());
-    imports.add(ListAttribute.class.getCanonicalName());
-    imports.add(MapAttribute.class.getCanonicalName());
-    imports.add(SetAttribute.class.getCanonicalName());
     imports.add(StaticMetamodel.class.getCanonicalName());
     imports.add(EntityService.class.getCanonicalName());
     imports.add(ro.brage.dodo.jpa.Finder.class.getCanonicalName());
 
-    staticImports.add(annotatedClass.getQualifiedName().toString() + "_.*"); // import all fields from the generated JPA Model
-    
+    staticImports.add(annotatedClass.getQualifiedName().toString() + "_.*"); // import all fields
+                                                                             // from the generated
+                                                                             // JPA Model
+
+    if (annotatedClass.isExtendingModel()) {
+      imports.add(Model.class.getCanonicalName());
+      staticImports.add(Model.class.getCanonicalName() + "_.*");
+    }
+
     try {
       jw.emitImports(imports);
       jw.emitStaticImports(staticImports);
       jw.emitEmptyLine();
     } catch (IOException e) {
-      throw new Exception("INIT_IMPORTS");
+      throw new Exception("SET_IMPORTS");
     }
   }
 
@@ -381,7 +367,7 @@ public class ClassBuilder {
   /**
    * Sets the Generate's annotation with some additional information regarding the generated class
    * 
-   * @throws ProcessingException if it was unsuccessful
+   * @throws Exception if it was unsuccessful
    */
   private void setGenerateAnnotation() throws Exception {
 
@@ -402,24 +388,5 @@ public class ClassBuilder {
     }
 
   }
-
-
-
-  /**
-   * Create a set of Modifiers
-   * 
-   * @param objects the modifiers
-   * @return a set of modifiers
-   */
-
-  private Set<Modifier> getCustomModifier(Modifier... objects) {
-    Set<Modifier> type = new HashSet<>();
-
-    for (Object modifier : objects) {
-      type.add((Modifier) modifier);
-    }
-    return type;
-  }
-
 
 }

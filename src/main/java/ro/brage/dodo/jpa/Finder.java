@@ -44,6 +44,8 @@ import ro.brage.dodo.jpa.utils.JpaLog;
 /**
  * The Finder provides additional methods when querying an entity based on {@link CriteriaBuilder}
  * 
+ * An easier workaround would be using the {@link ro.brage.dodo.jpa.annotations.Finder}'s annotation.
+ * 
  * <pre>
  * &#64;Stateless
  * &#64;TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
@@ -117,7 +119,7 @@ public class Finder<ENTITY extends Model> {
     try {
       return typedQuery.getSingleResult();
     } catch (Exception e) {
-      return (ENTITY) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
+      return (ENTITY) JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
     }
   }
 
@@ -147,7 +149,7 @@ public class Finder<ENTITY extends Model> {
     try {
       return (List<ENTITY>) typedQuery.getResultList();
     } catch (Exception e) {
-      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
+      return (List<ENTITY>) JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
           new ArrayList<ENTITY>());
     }
 
@@ -204,7 +206,7 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
   // TODO
-  //public Finder<ENTITY> notEqualTo(SingularAttribute<Model, ?> attribute, Object value) {
+  // public Finder<ENTITY> notEqualTo(SingularAttribute<Model, ?> attribute, Object value) {
   public Finder<ENTITY> notEqualsTo(Attribute<? extends Model, ?> attribute, Object value) {
     if (attribute != null && value != null) {
       Path<Object> objAttribute = root.get(attribute.getName());
@@ -629,7 +631,8 @@ public class Finder<ENTITY extends Model> {
    * @param value the DATE value
    * @return this
    */
-  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<? extends Model, Date> attribute, Date value) {
+  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<? extends Model, Date> attribute,
+      Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.greaterThanOrEqualTo(root.get(attribute.getName()), (Date) value));
     }
@@ -1022,7 +1025,8 @@ public class Finder<ENTITY extends Model> {
    * @return this
    */
 
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<? extends Model, Date> attribute, Date value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<? extends Model, Date> attribute,
+      Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute.getName()), (Date) value));
     }

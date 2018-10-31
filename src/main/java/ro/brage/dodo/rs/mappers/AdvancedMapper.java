@@ -22,8 +22,8 @@ import java.util.List;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.MappingTarget;
-import ro.brage.dodo.jpa.DtoModel;
 import ro.brage.dodo.jpa.Model;
+import ro.brage.dodo.rs.DtoModel;
 import ro.brage.dodo.rs.mappers.qualifiers.LoadEntity;
 
 /**

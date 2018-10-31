@@ -16,13 +16,14 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.jpa;
+package ro.brage.dodo.rs;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- *
+ * The Dto Model
+ * 
  * @author Dorin Brage
  */
 public class DtoModel implements Serializable {

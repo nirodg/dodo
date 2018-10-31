@@ -25,6 +25,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * The QueryParams is an utility for the static queries
+ * <hr>
+ * The new way
+ * 
+ * <pre>
+ * List<Todo> results = getService()
+ *     .getResults("UPDATE Todo t SET t.enabled=0 where t.guid:guid",
+ *         new QueryParams()
+ *         .addParameter(Todo_.enabled, false)
+ *         .addParameter(Todo_.guid, guid));
+ * </pre>
+ * 
+ * <hr>
+ * The old way
+ * 
+ * <pre>
+ * String updateQuery = "UPDATE Todo t SET t.enabled=0 where t.guid:guid";
+ * 
+ * getEntityManager()
+ *     .createQuery(updateQuery)
+ *     .setParameter("id", id).executeUpdate();
+ * </pre>
+ * 
  * @author Dorin Brage
  */
 public class QueryParams {

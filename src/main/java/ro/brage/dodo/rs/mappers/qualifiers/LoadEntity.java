@@ -25,7 +25,8 @@ import java.lang.annotation.Target;
 import org.mapstruct.Qualifier;
 
 /**
- *
+ * The Load entity is used for specifying what methods must be used during the mapping stage
+ * 
  * @author Dorin Brage
  */
 @Qualifier

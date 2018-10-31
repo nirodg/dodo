@@ -21,13 +21,16 @@ package ro.brage.dodo.jpa.utils;
 import org.slf4j.Logger;
 
 /**
- *
+ * The JPA Log provides method/s for logging with the possibility to return a new instantiated
+ * Object/List if required.
+ * 
  * @author Dorin Brage
  */
 public class JpaLog {
 
-  public static Object info(Logger log, Enum<?> key, Exception e, Object type) {
-    log.info("Error happened {}:{}", key, e.getMessage());
+  public static Object error(Logger log, Enum<?> key, Exception e, Object type) {
+    log.error("Error happened {}:{}", key, e.getMessage());
     return type;
   }
+
 }

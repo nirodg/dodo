@@ -1,3 +1,21 @@
+/*******************************************************************************
+ * Copyright 2018 Dorin Brage
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *******************************************************************************/
 package ro.brage.dodo.jpa.annotations;
 
 import java.util.HashMap;
@@ -19,9 +37,13 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import com.google.auto.service.AutoService;
-import ro.brage.dodo.jpa.Model;
-import ro.brage.dodo.jpa.annotations.enums.ProcessingError;
 
+/**
+ * The {@link Finder } processor
+ * 
+ * @author Dorin Brage
+ *
+ */
 @AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class FinderProcessor extends AbstractProcessor {
@@ -94,7 +116,7 @@ public class FinderProcessor extends AbstractProcessor {
           container.put(annotatedClazz.getSimpleName().toString(),
               new AnnotatedClass(annotatedClazz, element.getAnnotation(Finder.class)));
         } else {
-          throw new Exception(ProcessingError.CLASS_CANT_BE_DUPLICATED.name());
+          throw new Exception("CLASS_CANT_BE_DUPLICATED");
         }
 
       }
@@ -112,14 +134,11 @@ public class FinderProcessor extends AbstractProcessor {
    */
   protected boolean checkAnnotatedClasses(Element element) throws Exception {
 
-
     if (!element.getKind().equals(ElementKind.CLASS)) {
-
       processingEnv.getMessager()
           .printMessage(Diagnostic.Kind.ERROR, "Only for classes", element);
 
-
-      throw new Exception(ProcessingError.PROCESSOR_ONLY_CLASSES.name());
+      throw new Exception("PROCESSOR_ONLY_CLASSES");
     }
     return true;
   }
