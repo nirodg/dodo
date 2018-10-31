@@ -22,7 +22,7 @@ import java.util.List;
 import ro.brage.dodo.jpa.annotations.Finder;
 
 /**
- * This class will represent all sql clausules which will be implemented for each entity using the
+ * This class will represent all SQL clauses which will be implemented for each entity using the
  * {@link Finder}'s annotation.
  * 
  * @author Dorin Brage
@@ -35,6 +35,22 @@ public interface SqlClausule<C, T> {
   public C equalsTo(Object val);
 
   public C notEqualsTo(Object val);
+
+  public C lessThan(Object val);
+
+  public C lesserThanOrEquals(Object val);
+
+  public C greaterThan(Object val);
+
+  public C greaterThanOrEqualTo(Object val);
+
+  public C between(Object val1, Object val2);
+
+  public C distinct();
+
+  public C in(List<Object> vals);
+
+  public C maxItems(Integer maxResults);
 
   public T getItem();
 

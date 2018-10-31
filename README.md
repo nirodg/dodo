@@ -68,7 +68,7 @@ For simple entities where you'll need only Entity < > DTO methods (from <- -> to
 It can be an Entity with primitive fields (Strings included) or a simple Enum class.
 
 ```java
-import ro.brage.dodo.rs.mappers. SimpleMapper;
+import ro.brage.dodo.rs.mappers.SimpleMapper;
 
 @Mapper(componentModel = "cdi")
 public abstract class ItemMapper extends SimpleMapper<Item, ItemDto> {

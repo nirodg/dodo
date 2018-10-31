@@ -44,7 +44,8 @@ import ro.brage.dodo.jpa.utils.JpaLog;
 /**
  * The Finder provides additional methods when querying an entity based on {@link CriteriaBuilder}
  * 
- * An easier workaround would be using the {@link ro.brage.dodo.jpa.annotations.Finder}'s annotation.
+ * An easier workaround would be using the {@link ro.brage.dodo.jpa.annotations.Finder}'s
+ * annotation.
  * 
  * <pre>
  * &#64;Stateless
@@ -205,8 +206,6 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  // TODO
-  // public Finder<ENTITY> notEqualTo(SingularAttribute<Model, ?> attribute, Object value) {
   public Finder<ENTITY> notEqualsTo(Attribute<? extends Model, ?> attribute, Object value) {
     if (attribute != null && value != null) {
       Path<Object> objAttribute = root.get(attribute.getName());
@@ -247,9 +246,30 @@ public class Finder<ENTITY extends Model> {
    * @param to the TO date
    * @return this
    */
-
   public Finder<ENTITY> between(SingularAttribute<? extends Model, Date> attribute, Date from,
       Date to) {
+    greaterThan(attribute, from);
+    lessThan(attribute, to);
+    return this;
+  }
+
+  /**
+   * Selects values within a given range dates - will try to cast it by checking what kind of
+   * instance is
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year between '1999-01-01' and '2017-31-12'
+   * 
+   * SELECT c FROM Car c where c.issues between '5' and '10'
+   * </pre>
+   * 
+   * @param attribute the entity's date attribute
+   * @param from
+   * @param to
+   * @return
+   */
+  public Finder<ENTITY> between(Attribute<? extends Model, ?> attribute, Object from,
+      Object to) {
     greaterThan(attribute, from);
     lessThan(attribute, to);
     return this;
@@ -439,6 +459,48 @@ public class Finder<ENTITY extends Model> {
       Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.greaterThan(root.get(attribute.getName()), value));
+    }
+    return this;
+  }
+
+  /**
+   * Grater than the given Object - will try to cast it by checking what kind of instance is
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year > '1999-31-12'
+  
+   * SELECT c FROM Car c where c.doors > '3'
+   * </pre>
+   * 
+   * 
+   * @param attribute the entity's attribute
+   * @param value the Object
+   * @return
+   */
+  public Finder<ENTITY> greaterThan(Attribute<? extends Model, ?> attribute,
+      Object value) {
+    if (attribute != null && value != null) {
+      if (value instanceof Date) {
+        Path<Date> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThan(objAttribute, (Date) value));
+
+      } else if (value instanceof Double) {
+        Path<Double> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThan(objAttribute, (Double) value));
+
+      } else if (value instanceof Float) {
+        Path<Float> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThan(objAttribute, (Float) value));
+
+      } else if (value instanceof Integer) {
+        Path<Integer> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThan(objAttribute, (Integer) value));
+
+      } else if (value instanceof Long) {
+        Path<Long> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThan(objAttribute, (Long) value));
+
+      }
     }
     return this;
   }
@@ -640,6 +702,48 @@ public class Finder<ENTITY extends Model> {
   }
 
   /**
+   * Grater than or equals to the given Object - will try to cast it by checking what kind of
+   * instance is
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year >= '1999-31-12'
+  
+   * SELECT c FROM Car c where c.doors >= '5'
+   * </pre>
+   * 
+   * @param attribute the entity's attribute
+   * @param value the DATE value
+   * @return this
+   */
+  public Finder<ENTITY> greaterThanOrEqualTo(Attribute<? extends Model, ?> attribute,
+      Object value) {
+    if (attribute != null && value != null) {
+      if (value instanceof Date) {
+        Path<Date> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThanOrEqualTo(objAttribute, (Date) value));
+
+      } else if (value instanceof Double) {
+        Path<Double> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThanOrEqualTo(objAttribute, (Double) value));
+
+      } else if (value instanceof Float) {
+        Path<Float> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThanOrEqualTo(objAttribute, (Float) value));
+
+      } else if (value instanceof Integer) {
+        Path<Integer> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThanOrEqualTo(objAttribute, (Integer) value));
+
+      } else if (value instanceof Long) {
+        Path<Long> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThanOrEqualTo(objAttribute, (Long) value));
+
+      }
+    }
+    return this;
+  }
+
+  /**
    * Grater than or equals to the given value
    * 
    * <pre>
@@ -829,10 +933,50 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date
    * @return this
    */
-  public Finder<ENTITY> lessThan(SingularAttribute<? extends Model, Date> attribute, Date value) {
+  public Finder<ENTITY> lessThan(Attribute<? extends Model, ?> attribute, Date value) {
     if (attribute != null && value != null) {
       Path<Date> objAttribute = root.get(attribute.getName());
       predicates.add(cb.lessThan(objAttribute, value));
+    }
+    return this;
+  }
+
+  /**
+   * Lesser than the given Object - will try to cast it by checking what kind of instance is
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year < '1999-31-12'
+   * 
+   * SELECT c FROM Car c where c.doors < '3'
+   * </pre>
+   * 
+   * @param attribute the entity's attribute
+   * @param value the Object
+   * @return
+   */
+  public Finder<ENTITY> lessThan(Attribute<? extends Model, ?> attribute, Object value) {
+    if (attribute != null && value != null) {
+      if (value instanceof Date) {
+        Path<Date> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThan(objAttribute, (Date) value));
+
+      } else if (value instanceof Double) {
+        Path<Double> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThan(objAttribute, (Double) value));
+
+      } else if (value instanceof Float) {
+        Path<Float> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThan(objAttribute, (Float) value));
+
+      } else if (value instanceof Integer) {
+        Path<Integer> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThan(objAttribute, (Integer) value));
+
+      } else if (value instanceof Long) {
+        Path<Long> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThan(objAttribute, (Long) value));
+
+      }
     }
     return this;
   }
@@ -1024,11 +1168,51 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date value
    * @return this
    */
-
   public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<? extends Model, Date> attribute,
       Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute.getName()), (Date) value));
+    }
+    return this;
+  }
+
+  /**
+   * Lesser or equals to the given Object - will try to cast it by checking what kind of instance is
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year <= '1999-31-12'
+  
+   * SELECT c FROM Car c where c.doors <= '5'
+   * </pre>
+   * 
+   * @param attribute the entity's attribute
+   * @param value the Object value
+   * @return this
+   */
+  public Finder<ENTITY> lesserThanOrEquals(Attribute<? extends Model, ?> attribute,
+      Object value) {
+    if (attribute != null && value != null) {
+      if (value instanceof Date) {
+        Path<Date> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThanOrEqualTo(objAttribute, (Date) value));
+
+      } else if (value instanceof Double) {
+        Path<Double> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThanOrEqualTo(objAttribute, (Double) value));
+
+      } else if (value instanceof Float) {
+        Path<Float> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThanOrEqualTo(objAttribute, (Float) value));
+
+      } else if (value instanceof Integer) {
+        Path<Integer> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThanOrEqualTo(objAttribute, (Integer) value));
+
+      } else if (value instanceof Long) {
+        Path<Long> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThanOrEqualTo(objAttribute, (Long) value));
+
+      }
     }
     return this;
   }
@@ -1303,6 +1487,27 @@ public class Finder<ENTITY extends Model> {
     return this;
   }
 
+  /**
+   * The IN operator allows you to specify multiple values in a WHERE clause.
+   * 
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year IN (2000,20001,2006...)
+   * </pre>
+   * 
+   * @param attribute
+   * @param values
+   * @return
+   */
+  public Finder<ENTITY> in(Attribute<? extends Model, ?> attribute, List<?> values) {
+    if (attribute != null) {
+      Map<Long, List<Object>> mapValues = Arrays.splitList(values);
+      mapValues.entrySet().forEach((map) -> {
+        predicates.add(cb.isTrue(root.get(attribute.getName()).in(map.getValue())));
+      });
+    }
+    return this;
+  }
 
   /**
    * Create a left join to the specified single-valued attribute

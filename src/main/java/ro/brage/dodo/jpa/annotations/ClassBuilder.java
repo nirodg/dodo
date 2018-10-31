@@ -170,15 +170,14 @@ public class ClassBuilder {
 
 
       if (method.getParameterCount() > 0) {
-        String[] parameters = new String[method.getParameterCount() * 2];
+        List<String> parameters = new ArrayList<>();
         for (int i = 0; i < method.getParameterCount(); i++) {
-          parameters[i] = method.getParameters()[i].getType().getSimpleName();
-          i++;
-          parameters[i] = method.getParameters()[i - 1].getName();
+          parameters.add(method.getParameters()[i].getType().getSimpleName());
+          parameters.add("arg" + i);
         }
 
         jw.beginMethod(returnType, method.getName(), Utils.getCustomModifier(Modifier.PUBLIC),
-            parameters);
+            parameters, null);
 
       } else {
         jw.beginMethod(returnType, method.getName(), Utils.getCustomModifier(Modifier.PUBLIC));
@@ -204,9 +203,15 @@ public class ClassBuilder {
           i++;
         }
 
-        jw.emitStatement("finder." + method.getName() + "(currentField, " + argsPattern + ")",
-            (Object[]) argsNames);
-
+        if (argsNames.length == 0) {
+          jw.emitStatement("finder.%s()", method.getName());
+        } else if (method.getName().toString().equals("maxItems")) {
+          jw.emitStatement("finder.maxItems(" + argsPattern + ")",
+              (Object[]) argsNames);
+        } else {
+          jw.emitStatement("finder." + method.getName() + "(currentField, " + argsPattern + ")",
+              (Object[]) argsNames);
+        }
 
         jw.emitStatement("return this", (Object[]) null);
       }
@@ -338,6 +343,7 @@ public class ClassBuilder {
     List<String> staticImports = new ArrayList<String>();
 
     imports.add(annotatedClass.getQualifiedName().toString());
+    imports.add(List.class.getCanonicalName());
     imports.add(Generated.class.getCanonicalName());
     imports.add(SqlClausule.class.getCanonicalName());
     imports.add(Attribute.class.getCanonicalName());
