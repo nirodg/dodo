@@ -32,6 +32,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.SingularAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,7 +164,7 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> equalTo(SingularAttribute<? extends Model, ?> attribute, Object value) {
+  public Finder<ENTITY> equalsTo(Attribute<? extends Model, ?> attribute, Object value) {
     if (attribute != null && value != null) {
       Path<Date> objAttribute = root.get(attribute.getName());
       predicates.add(cb.equal(objAttribute, value));
@@ -202,9 +203,12 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> notEqualTo(SingularAttribute<Model, ?> attribute, Object value) {
+  // TODO
+  //public Finder<ENTITY> notEqualTo(SingularAttribute<Model, ?> attribute, Object value) {
+  public Finder<ENTITY> notEqualsTo(Attribute<? extends Model, ?> attribute, Object value) {
     if (attribute != null && value != null) {
-      predicates.add(cb.notEqual(root.get(attribute), value));
+      Path<Object> objAttribute = root.get(attribute.getName());
+      predicates.add(cb.notEqual(objAttribute, value));
     }
     return this;
   }
@@ -220,7 +224,7 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> notEqualTo(SingularAttribute<ENTITY, ? extends Model> joinEntity,
+  public Finder<ENTITY> notEqualTo(Attribute<ENTITY, ? extends Model> joinEntity,
       SingularAttribute<?, ?> attribute, Object value) {
     if (joinEntity != null && attribute != null && value != null) {
       Join<ENTITY, ? extends Model> rootJoinEntity = addJoin(joinEntity);
@@ -1305,7 +1309,7 @@ public class Finder<ENTITY extends Model> {
    * @see SingularAttribute
    */
   private Join<ENTITY, ? extends Model> addJoin(
-      SingularAttribute<ENTITY, ? extends Model> entity) {
+      Attribute<ENTITY, ? extends Model> entity) {
     return addJoin(entity, JoinType.LEFT);
   }
 
@@ -1319,7 +1323,7 @@ public class Finder<ENTITY extends Model> {
    * @see SingularAttribute
    */
   @SuppressWarnings("unchecked")
-  private Join<ENTITY, ? extends Model> addJoin(SingularAttribute<ENTITY, ? extends Model> entity,
+  private Join<ENTITY, ? extends Model> addJoin(Attribute<ENTITY, ? extends Model> entity,
       JoinType joinType) {
 
     Join<ENTITY, ? extends Model> joinEntity = null;
@@ -1327,17 +1331,15 @@ public class Finder<ENTITY extends Model> {
     LOG.info("=> Check already defined joins for the entity");
 
     if (root.getJoins().isEmpty()) {
-      return root.join(entity, joinType);
+      return root.join(entity.getName(), joinType);
     }
 
     LOG.info("=> Total Joins {}", root.getJoins().size());
 
-    String entityClassName = entity.getType().getJavaType().getSimpleName();
-
     for (Join<ENTITY, ?> join : root.getJoins()) {
       String joinClassName = join.getModel().getBindableJavaType().getSimpleName();
-      if (!joinClassName.equals(entityClassName)) {
-        joinEntity = root.join(entity, joinType);
+      if (!joinClassName.equals(entity.getName())) {
+        joinEntity = root.join(entity.getName(), joinType);
         LOG.info("=> Will join the {}", entity.getName());
       } else {
         joinEntity = (Join<ENTITY, ? extends Model>) join;
