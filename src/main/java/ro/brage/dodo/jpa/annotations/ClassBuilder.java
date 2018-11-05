@@ -39,7 +39,6 @@ import javax.lang.model.util.Elements;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.StaticMetamodel;
 import javax.tools.JavaFileObject;
-import com.google.common.collect.Sets;
 import com.squareup.javawriter.JavaWriter;
 import ro.brage.dodo.jpa.EntityService;
 import ro.brage.dodo.jpa.Model;
@@ -151,7 +150,7 @@ public class ClassBuilder {
         String.format("EntityService<%s>", annotatedClass.getQualifiedName().toString()),
         "service");
     List<String> constructorThrowTypes = Arrays.asList(Exception.class.getSimpleName().toString());
-    jw.beginConstructor(Sets.newHashSet(Modifier.PUBLIC), constructorParameters,
+    jw.beginConstructor(Utils.getCustomModifier(Modifier.PUBLIC), constructorParameters,
         constructorThrowTypes);
     jw.emitStatement("this.service = service", (Object[]) null);
     jw.emitStatement("this.finder = new Finder<>(service)", (Object[]) null);

@@ -30,7 +30,7 @@ import ro.brage.dodo.rs.DtoModel;
  * @param <Entity>
  * @param <DTO>
  */
-@MapperConfig(componentModel = "cdi")
+//@MapperConfig(componentModel = "cdi")
 public abstract class SimpleMapper<Entity extends Model, DTO extends DtoModel> {
 
   public abstract Entity map(DTO entity);

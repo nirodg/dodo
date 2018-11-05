@@ -45,6 +45,8 @@ public class AnnotatedClass {
   private final static String ELEMENT_COLLETION_ANNOTATION = "javax.persistence.ElementCollection";
   private final static String EMBEDDED_ANNOTATION = "javax.persistence.Embedded";
   private final static String SERIAL_VERSION_UID = "serialVersionUID";
+  private final static String TRANSIENT_ANNOTATION = "javax.persistence.Transient";
+
 
   private Name qualifiedName;
   private String className;
@@ -64,34 +66,43 @@ public class AnnotatedClass {
       }
     }
 
-    // Add fields with the @Column, @Embedded ,@OneToMany,
-    for (Element element : annotatedClazz.getEnclosedElements()) {
-      if (element.getKind().isField() && !element.getKind().toString().equals(SERIAL_VERSION_UID)) {
-        for (AnnotationMirror annotationsField : element.getAnnotationMirrors()) {
-          String annotated = annotationsField.getAnnotationType().toString();
-          if (fields.get(element.getSimpleName().toString()) == null
-              && isPersistedProperty(annotated)) {
+    if (entity) {
+      // Add fields with the @Column, @Embedded ,@OneToMany,
+      for (Element element : annotatedClazz.getEnclosedElements()) {
+        if (element.getKind().isField()
+            && !element.getSimpleName().toString().equals(SERIAL_VERSION_UID)) {
+
+          // check if the element has @Transfient annotation, if exists won't be defined
+          // in the generated Finder
+          for (AnnotationMirror annotationsField : element.getAnnotationMirrors()) {
+            String annotated = annotationsField.getAnnotationType().toString();
+
+            if (!annotated.equals(TRANSIENT_ANNOTATION)
+                && !fields.containsKey(element.getSimpleName().toString())) {
+              fields.put(element.getSimpleName().toString(), element.asType().toString());
+            }
+          }
+          if (!fields.containsKey(element.getSimpleName().toString())) {
             fields.put(element.getSimpleName().toString(), element.asType().toString());
           }
         }
       }
-    }
 
-    // Add fields from extended class, if requires
-    if (annotatedClazz.getSuperclass().toString().equals(Model.class.getCanonicalName())) {
-      extendingModel = true; // It extends Model
-      for (Field field : Model.class.getDeclaredFields()) {
-        for (Annotation annotatedField : field.getDeclaredAnnotations()) {
-          if (fields.get(field.getName()) == null
-              && isPersistedProperty(annotatedField.annotationType().getCanonicalName())) {
-            fields.put(field.getName(), field.getType().getSimpleName());
+      // Add fields from extended class, if is defined
+      if (annotatedClazz.getSuperclass().toString().equals(Model.class.getCanonicalName())) {
+        extendingModel = true; // It extends Model
+        for (Field field : Model.class.getDeclaredFields()) {
+          for (Annotation annotatedField : field.getDeclaredAnnotations()) {
+            if (fields.get(field.getName()) == null
+                && isPersistedProperty(annotatedField.annotationType().getCanonicalName())) {
+              fields.put(field.getName(), field.getType().getSimpleName());
+            }
           }
         }
       }
+
+      System.out.println(className + " has " + fields.size());
     }
-
-    System.out.println(className + " has " + fields.size());
-
   }
 
   /**
@@ -106,17 +117,18 @@ public class AnnotatedClass {
       return false;
     }
 
-    if (property.equals(COLUMN_ANNOTATION)
-        || property.equals(EMBEDDED_ANNOTATION)
-        || property.equals(ONE_TO_MANY_ANNOTATION)
-        || property.equals(ONE_TO_ONE_ANNOTATION) || property.equals(MANY_TO_ONE_ANNOTATION)
-        || property.equals(MANY_TO_MANY_ANNOTATION)
-        || property.equals(JOIN_COLUMN_ANNOTATION)
-        || property.equals(ELEMENT_COLLETION_ANNOTATION)) {
-      return true;
+    if (property.equals("javax.persistence.Transient")) {
+      return false;
     }
 
-    return false;
+    return true; // TODO
+    /*
+     * if (property.equals(COLUMN_ANNOTATION) || property.equals(EMBEDDED_ANNOTATION) ||
+     * property.equals(ONE_TO_MANY_ANNOTATION) || property.equals(ONE_TO_ONE_ANNOTATION) ||
+     * property.equals(MANY_TO_ONE_ANNOTATION) || property.equals(MANY_TO_MANY_ANNOTATION) ||
+     * property.equals(JOIN_COLUMN_ANNOTATION) || property.equals(ELEMENT_COLLETION_ANNOTATION)) {
+     * return true; } return false;
+     */
   }
 
   public Name getQualifiedName() {

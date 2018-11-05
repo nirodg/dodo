@@ -34,7 +34,7 @@ import ro.brage.dodo.rs.mappers.qualifiers.LoadEntity;
  * @param <Entity>
  * @param <DTO>
  */
-@MapperConfig(componentModel = "cdi")
+//@MapperConfig(componentModel = "cdi")
 public abstract class AdvancedMapper<Entity extends Model, DTO extends DtoModel>
     extends SimpleMapper<Entity, DTO> {
 
