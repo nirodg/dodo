@@ -36,6 +36,8 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.auto.service.AutoService;
 
 /**
@@ -47,6 +49,8 @@ import com.google.auto.service.AutoService;
 @AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class FinderProcessor extends AbstractProcessor {
+
+  private final static Logger LOGGER = LoggerFactory.getLogger(FinderProcessor.class);
 
   /** The Generator factory */
   private ClassBuilder generator;
@@ -138,7 +142,7 @@ public class FinderProcessor extends AbstractProcessor {
       processingEnv.getMessager()
           .printMessage(Diagnostic.Kind.ERROR, "Only for classes", element);
 
-      throw new Exception("PROCESSOR_ONLY_CLASSES");
+      throw new Exception("ONLY_CLASS_IS_ALLOWED");
     }
     return true;
   }

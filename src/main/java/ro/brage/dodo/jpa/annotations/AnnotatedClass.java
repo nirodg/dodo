@@ -25,6 +25,8 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ro.brage.dodo.jpa.Model;
 
 /**
@@ -35,16 +37,10 @@ import ro.brage.dodo.jpa.Model;
  */
 public class AnnotatedClass {
 
-  private final static String ENTITY_ANNOTATION = "javax.persistence.Entity";
-  private final static String COLUMN_ANNOTATION = "javax.persistence.Column";
-  private final static String ONE_TO_MANY_ANNOTATION = "javax.persistence.OneToMany";
-  private final static String ONE_TO_ONE_ANNOTATION = "javax.persistence.OneToOne";
-  private final static String MANY_TO_ONE_ANNOTATION = "javax.persistence.ManyToOne";
-  private final static String MANY_TO_MANY_ANNOTATION = "javax.persistence.ManyToMany";
-  private final static String JOIN_COLUMN_ANNOTATION = "javax.persistence.JoinColumn";
-  private final static String ELEMENT_COLLETION_ANNOTATION = "javax.persistence.ElementCollection";
-  private final static String EMBEDDED_ANNOTATION = "javax.persistence.Embedded";
+  private final static Logger LOGGER = LoggerFactory.getLogger(AnnotatedClass.class);
+
   private final static String SERIAL_VERSION_UID = "serialVersionUID";
+  private final static String ENTITY_ANNOTATION = "javax.persistence.Entity";
   private final static String TRANSIENT_ANNOTATION = "javax.persistence.Transient";
 
 
@@ -94,14 +90,14 @@ public class AnnotatedClass {
         for (Field field : Model.class.getDeclaredFields()) {
           for (Annotation annotatedField : field.getDeclaredAnnotations()) {
             if (fields.get(field.getName()) == null
-                && isPersistedProperty(annotatedField.annotationType().getCanonicalName())) {
+                && isFieldNotRequired(annotatedField.annotationType().getCanonicalName())) {
               fields.put(field.getName(), field.getType().getSimpleName());
             }
           }
         }
       }
 
-      System.out.println(className + " has " + fields.size());
+      LOGGER.info("The entity {} has {} field/s", className, fields.size());
     }
   }
 
@@ -112,7 +108,7 @@ public class AnnotatedClass {
    * @param property
    * @return
    */
-  protected boolean isPersistedProperty(String property) {
+  protected boolean isFieldNotRequired(String property) {
     if (property == null) {
       return false;
     }
@@ -121,14 +117,7 @@ public class AnnotatedClass {
       return false;
     }
 
-    return true; // TODO
-    /*
-     * if (property.equals(COLUMN_ANNOTATION) || property.equals(EMBEDDED_ANNOTATION) ||
-     * property.equals(ONE_TO_MANY_ANNOTATION) || property.equals(ONE_TO_ONE_ANNOTATION) ||
-     * property.equals(MANY_TO_ONE_ANNOTATION) || property.equals(MANY_TO_MANY_ANNOTATION) ||
-     * property.equals(JOIN_COLUMN_ANNOTATION) || property.equals(ELEMENT_COLLETION_ANNOTATION)) {
-     * return true; } return false;
-     */
+    return true;
   }
 
   public Name getQualifiedName() {

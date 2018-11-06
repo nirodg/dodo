@@ -39,6 +39,8 @@ import javax.lang.model.util.Elements;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.StaticMetamodel;
 import javax.tools.JavaFileObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.squareup.javawriter.JavaWriter;
 import ro.brage.dodo.jpa.EntityService;
 import ro.brage.dodo.jpa.Model;
@@ -51,7 +53,9 @@ import ro.brage.dodo.jpa.queries.SqlClausule;
  *
  */
 public class ClassBuilder {
-
+  
+  private final static Logger LOGGER = LoggerFactory.getLogger(ClassBuilder.class);
+  
   private static final String GENERATED_CLASS_SUFFIX = "Finder";
 
   private Elements elements;
@@ -98,7 +102,7 @@ public class ClassBuilder {
 
   public ClassBuilder build() throws Exception {
 
-    System.out.println("Building...");
+    LOGGER.info("Generating sources for {}", annotatedClass.getClassName());
 
     if (!this.isInitialized) {
       throw new Exception("INIT_NOT_DEFINED");
