@@ -19,7 +19,7 @@
 package ro.brage.dodo.jpa.queries;
 
 import java.util.List;
-import ro.brage.dodo.jpa.annotations.Finder;
+import ro.brage.dodo.jpa.Finder;
 
 /**
  * This class will represent all SQL clauses which will be implemented for each entity using the
@@ -30,27 +30,27 @@ import ro.brage.dodo.jpa.annotations.Finder;
  * @param <C> the new generated source
  * @param <T> the Entity
  */
-public interface SqlClausule<C, T> {
+public interface SqlClausule<T> {
 
-  public C equalsTo(Object val);
+  public SqlClausule<?> equalsTo(Object val);
 
-  public C notEqualsTo(Object val);
+  public SqlClausule<?> notEqualsTo(Object val);
 
-  public C lessThan(Object val);
+  public SqlClausule<?> lessThan(Object val);
 
-  public C lesserThanOrEquals(Object val);
+  public SqlClausule<?> lesserThanOrEquals(Object val);
 
-  public C greaterThan(Object val);
+  public SqlClausule<?> greaterThan(Object val);
 
-  public C greaterThanOrEqualTo(Object val);
+  public SqlClausule<?> greaterThanOrEqualTo(Object val);
 
-  public C between(Object val1, Object val2);
+  public SqlClausule<?> between(Object val1, Object val2);
 
-  public C distinct();
+  public SqlClausule<?> distinct();
 
-  public C in(List<Object> vals);
+  public SqlClausule<?> in(List<Object> vals);
 
-  public C maxItems(Integer maxResults);
+  public SqlClausule<?> maxItems(Integer maxResults);
 
   public T getItem();
 

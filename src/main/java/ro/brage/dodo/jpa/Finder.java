@@ -33,7 +33,9 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.StaticMetamodel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.brage.dodo.jpa.enums.JpaErrorKeys;
@@ -186,7 +188,7 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> equalTo(SingularAttribute<ENTITY, ? extends Model> joinEntity,
+  public Finder<ENTITY> equalTo(Attribute<ENTITY, ? extends Model> joinEntity,
       SingularAttribute<Model, String> attribute, String value) {
     if (joinEntity != null && attribute != null && value != null) {
       Join<ENTITY, ? extends Model> rootJoinEntity = addJoin(joinEntity);
@@ -981,6 +983,74 @@ public class Finder<ENTITY extends Model> {
     return this;
   }
 
+
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(Attribute<? extends Model, ?> joinEntity,
+      Attribute<? extends Model, Boolean> attribute, Boolean value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+
+    }
+    return this;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(SetAttribute<ENTITY, ? extends Model> joinEntity,
+      Attribute<? extends Model, Date> attribute, Date value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+      
+    }
+    return this;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(SetAttribute<ENTITY, ? extends Model> joinEntity,
+      Attribute<? extends Model, Float> attribute, Float value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+      
+    }
+    return this;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(SetAttribute<ENTITY, ? extends Model> joinEntity,
+      Attribute<? extends Model, Integer> attribute, Integer value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+      
+    }
+    return this;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(SetAttribute<ENTITY, ? extends Model> joinEntity,
+      Attribute<? extends Model, Long> attribute, Long value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+      
+    }
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(SetAttribute<ENTITY, ? extends Model> joinEntity,
+      Attribute<? extends Model, String> attribute, String value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+
+    }
+    return this;
+  }
+
+  
   /**
    * Lesser than the given Date
    *
@@ -1421,7 +1491,7 @@ public class Finder<ENTITY extends Model> {
    * @param orderBy
    * @return
    */
-  public Finder<ENTITY> orderBy(SingularAttribute<ENTITY, ? extends Model> joinEntity,
+  public Finder<ENTITY> orderBy(Attribute<ENTITY, ? extends Model> joinEntity,
       SingularAttribute<Model, ?> attribute, OrderBy orderBy) {
 
     if (joinEntity != null && attribute != null && orderBy != null) {

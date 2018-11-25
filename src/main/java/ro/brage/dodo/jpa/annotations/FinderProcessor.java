@@ -161,16 +161,8 @@ public class FinderProcessor extends AbstractProcessor {
     for (Entry<String, AnnotatedClass> item : container.entrySet()) {
       if (!processedInterfaces.contains(item.getValue()) && item.getValue().isEntity()) {
 
-        TypeElement annotatedClazz = null;
         try {
-
-          for (Element element : roundEnv.getElementsAnnotatedWith(Finder.class)) {
-            if (element.getSimpleName().toString().equals(item.getKey())) {
-              annotatedClazz = (TypeElement) element;
-            }
-          }
-
-          generator.init(annotatedClazz, container.get(item.getKey()), filer, elements).build();
+          generator.init(container.get(item.getKey()), container, filer).build();
         } catch (Exception e) {
           e.printStackTrace();
         }

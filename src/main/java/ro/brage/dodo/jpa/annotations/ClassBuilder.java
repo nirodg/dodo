@@ -33,8 +33,6 @@ import java.util.TreeMap;
 import javax.annotation.Generated;
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.StaticMetamodel;
@@ -53,13 +51,12 @@ import ro.brage.dodo.jpa.queries.SqlClausule;
  *
  */
 public class ClassBuilder {
-  
-  private final static Logger LOGGER = LoggerFactory.getLogger(ClassBuilder.class);
-  
-  private static final String GENERATED_CLASS_SUFFIX = "Finder";
 
-  private Elements elements;
-  private TypeElement typeAnnotatedClazz;
+  private final static Logger LOGGER = LoggerFactory.getLogger(ClassBuilder.class);
+
+  private static final String GENERATED_CLASS_SUFFIX = "Finder";
+  private static final String GENERATED_SUBCLASS_PREFIX = "Query";
+
   private Filer filer;
   private AnnotatedClass annotatedClass;
   private String finalGeneratedClass = null;
@@ -79,21 +76,19 @@ public class ClassBuilder {
    * @return {@link ClassBuilder}
    * @throws Exception if it was unsuccessful
    */
-  public ClassBuilder init(TypeElement typeAnnotatedClazz, AnnotatedClass annotatedClass,
-      Filer filer, Elements elements) throws Exception {
+  public ClassBuilder init(AnnotatedClass annotatedClass,
+      Map<String, AnnotatedClass> annotatedClasses,
+      Filer filer) throws Exception {
 
-    if (typeAnnotatedClazz == null || filer == null || elements == null) {
-      throw new Exception("Failed to init package");
+    if (filer == null || annotatedClass == null || annotatedClasses == null) {
+      throw new Exception("Failed to start building the class");
     }
 
-    this.typeAnnotatedClazz = typeAnnotatedClazz;
     this.annotatedClass = annotatedClass;
-    this.elements = elements;
     this.filer = filer;
 
     /** Class name + suffix **/
-    this.finalGeneratedClass =
-        typeAnnotatedClazz.getQualifiedName().toString().concat(GENERATED_CLASS_SUFFIX);
+    this.finalGeneratedClass = annotatedClass.getClassName().concat(GENERATED_CLASS_SUFFIX);
 
     this.isInitialized = true;
 
@@ -121,6 +116,8 @@ public class ClassBuilder {
     defineMandatoryLogic();
 
     defineTypeSafeMethods();
+
+    defineSubclasses();
 
     setEndClass();
 
@@ -232,9 +229,25 @@ public class ClassBuilder {
 
     // Define methods
     for (Entry<String, String> field : annotatedClass.getFields().entrySet()) {
-      methods.add(new MethodBuilder(String.format("SqlClausule<%s, %s>", finalGeneratedClass,
-          annotatedClass.getQualifiedName().toString()), field.getKey())
-              .addStatements("currentField = %s", field.getKey()).addStatements("return this"));
+
+      // define not complex type fields
+      if (Utils.isNotComplexType(field.getValue())) {
+        methods.add(new MethodBuilder(String.format("SqlClausule<%s, %s>", finalGeneratedClass,
+            annotatedClass.getQualifiedName().toString()), field.getKey())
+                .addStatements("currentField = %s", field.getKey()).addStatements("return this"));
+
+      }
+
+      if (!Utils.isNotComplexType(field.getValue())) {
+
+        // extract and define methods from each class
+        methods.add(new MethodBuilder(GENERATED_SUBCLASS_PREFIX + field.getKey(), field.getKey())
+            .addStatements("// complex type")
+            .addStatements("return (%s) this", GENERATED_SUBCLASS_PREFIX + field.getKey())
+            .addEmptyLine());
+      }
+
+
     }
 
     for (MethodBuilder method : methods) {
@@ -250,6 +263,66 @@ public class ClassBuilder {
 
       jw.endMethod();
       jw.emitEmptyLine();
+    }
+
+  }
+
+  private void defineSubclasses() throws Exception {
+
+
+
+    for (Entry<String, String> subclass : annotatedClass.getFields().entrySet()) {
+      // define subclass for each complex type and its fields to be queried
+      if (!Utils.isNotComplexType(subclass.getValue())) {
+
+        try {
+          // Beginning of the subclass
+          // i.e. QueryUser extends EmailFinder {}
+          jw.beginType(GENERATED_SUBCLASS_PREFIX + subclass.getKey(), "class",
+              Utils.getCustomModifier(Modifier.PUBLIC),
+              this.finalGeneratedClass);
+          jw.emitEmptyLine();
+
+
+          jw.beginConstructor(Utils.getCustomModifier(Modifier.PUBLIC),
+              Arrays.asList(String.format("EntityService<%s>", annotatedClass.getQualifiedName()),
+                  "service"),
+              Arrays.asList("Exception"));
+          jw.emitStatement("super(service)", (Object[]) null);
+          jw.endConstructor();
+
+        } catch (IOException e) {
+          throw new Exception("SET_INIT_SUBCLASS");
+        }
+
+        // define methods
+        // for (Entry<String, String> field : annotatedClass.getFields().entrySet()) {
+        // if (field.getKey().equals(field.getKey())) {
+        // if (!Utils.isNotComplexType(field.getValue())) {
+        //
+        // jw.beginMethod(subclassPrefix + subclass.getKey(), field.getKey(),
+        // Utils.getCustomModifier(Modifier.PUBLIC), null,
+        // null);
+        //
+        // jw.emitStatement("return this", (Object[]) null);
+        //
+        // jw.endMethod();
+        // jw.emitEmptyLine();
+        // }
+        // }
+        // }
+
+        jw.emitSingleLineComment("define methods", (Object[]) null);
+
+
+        try {
+          // end of the subclass
+          jw.endType();
+        } catch (IOException e) {
+          throw new Exception("SET_END_CLASS");
+        }
+
+      }
     }
 
   }
@@ -279,15 +352,7 @@ public class ClassBuilder {
    */
   private void setPackage() throws Exception {
     try {
-
-      PackageElement pkg = elements.getPackageOf(typeAnnotatedClazz);
-
-      if (!pkg.isUnnamed()) {
-        jw.emitPackage(pkg.getQualifiedName().toString());
-      } else {
-        jw.emitPackage("");
-      }
-
+      jw.emitPackage(annotatedClass.getNamespace());
     } catch (Exception e) {
       throw new Exception("INIT_PACKAGE");
     }

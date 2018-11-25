@@ -21,6 +21,7 @@ package ro.brage.dodo.jpa.annotations;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Map;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Name;
@@ -41,19 +42,29 @@ public class AnnotatedClass {
 
   private final static String SERIAL_VERSION_UID = "serialVersionUID";
   private final static String ENTITY_ANNOTATION = "javax.persistence.Entity";
-  private final static String TRANSIENT_ANNOTATION = "javax.persistence.Transient";
 
 
   private Name qualifiedName;
   private String className;
+  private String namespace;
   private boolean entity;
   private boolean extendingModel;
   private HashMap<String, String> fields = new HashMap<>();
 
+  private TypeElement typeElement;
+
+  // [ project [ [ name, String ], [ active, boolean] ]
+  // [ address [ [ street, String], [ provence, String] ]
+  private Map<String, Map<String, String>> complextFields = new HashMap<>();
+
+
+
   public AnnotatedClass(TypeElement annotatedClazz, Finder annotation)
       throws ClassNotFoundException {
+    typeElement = annotatedClazz;
     qualifiedName = annotatedClazz.getQualifiedName();
     className = annotatedClazz.getSimpleName().toString();
+    namespace = annotatedClazz.getQualifiedName().toString().replace("." + className, "");
 
     // Check if has the @Entity annotation
     for (AnnotationMirror annotationClass : annotatedClazz.getAnnotationMirrors()) {
@@ -73,8 +84,17 @@ public class AnnotatedClass {
           for (AnnotationMirror annotationsField : element.getAnnotationMirrors()) {
             String annotated = annotationsField.getAnnotationType().toString();
 
-            if (!annotated.equals(TRANSIENT_ANNOTATION)
+            if (Utils.isFieldNotRequired(annotated)
                 && !fields.containsKey(element.getSimpleName().toString())) {
+              fields.put(element.getSimpleName().toString(), element.asType().toString());
+              if (!Utils.isNotComplexType(element.asType().toString())) {
+                if (complextFields.get(element.getSimpleName().toString()) == null) {
+                  complextFields.put(element.getSimpleName().toString(), new HashMap<>());
+                }
+
+                // ((Map)complextFields.get(element.getSimpleName().toString()).put(, value);
+
+              }
               fields.put(element.getSimpleName().toString(), element.asType().toString());
             }
           }
@@ -90,8 +110,8 @@ public class AnnotatedClass {
         for (Field field : Model.class.getDeclaredFields()) {
           for (Annotation annotatedField : field.getDeclaredAnnotations()) {
             if (fields.get(field.getName()) == null
-                && isFieldNotRequired(annotatedField.annotationType().getCanonicalName())) {
-              fields.put(field.getName(), field.getType().getSimpleName());
+                && Utils.isFieldNotRequired(annotatedField.annotationType().getCanonicalName())) {
+              fields.put(field.getName(), field.getType().getCanonicalName());
             }
           }
         }
@@ -99,25 +119,6 @@ public class AnnotatedClass {
 
       LOGGER.info("The entity {} has {} field/s", className, fields.size());
     }
-  }
-
-  /**
-   * Check if the value is one of the required annotations in order to define the value on the
-   * generated Finder
-   * 
-   * @param property
-   * @return
-   */
-  protected boolean isFieldNotRequired(String property) {
-    if (property == null) {
-      return false;
-    }
-
-    if (property.equals("javax.persistence.Transient")) {
-      return false;
-    }
-
-    return true;
   }
 
   public Name getQualifiedName() {
@@ -151,6 +152,14 @@ public class AnnotatedClass {
 
   public boolean isExtendingModel() {
     return extendingModel;
+  }
+
+  public String getNamespace() {
+    return namespace;
+  }
+
+  public TypeElement getTypeElement() {
+    return typeElement;
   }
 
 
