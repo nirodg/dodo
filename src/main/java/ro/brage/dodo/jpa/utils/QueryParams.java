@@ -31,17 +31,17 @@ import org.slf4j.LoggerFactory;
  * 
  * <pre>
  * List<Todo> results = getService()
- *     .getResults("UPDATE Todo t SET t.enabled=0 where t.guid:guid",
+ *     .getResults("UPDATE Todo t SET t.enabled=0 where t.guid = :guid",
  *         new QueryParams()
- *         .addParameter(Todo_.enabled, false)
- *         .addParameter(Todo_.guid, guid));
+ *             .addParameter(Todo_.enabled, false)
+ *             .addParameter(Todo_.guid, guid));
  * </pre>
  * 
  * <hr>
  * The old way
  * 
  * <pre>
- * String updateQuery = "UPDATE Todo t SET t.enabled=0 where t.guid:guid";
+ * String updateQuery = "UPDATE Todo t SET t.enabled=0 where t.guid =  :guid";
  * 
  * getEntityManager()
  *     .createQuery(updateQuery)
@@ -61,10 +61,17 @@ public class QueryParams {
   }
 
   public QueryParams addParameter(SingularAttribute<?, ?> key, Object value) {
-    data.put(key.getName(), value);
-    LOG.debug("QueryParams:addParameter({},{})", key.getName(), value);
+    addParameter(key.getName(), value);
     return this;
   }
+
+
+  public QueryParams addParameter(String key, Object value) {
+    data.put(key, value);
+    LOG.debug("QueryParams:addParameter({},{})", key, value);
+    return this;
+  }
+
 
   public Map<String, Object> getParams() {
     return data;
