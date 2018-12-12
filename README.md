@@ -142,7 +142,7 @@ import com.brage.dodo.rs.AbstractRestService;
 @Path("/cars")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface CarRestService extends AbstractRestService<CarDTO> {
+public interface CarRestService extends RestApi<CarDTO> {
 
     @GET
     @Path("/getByLicensePlate/{licensePlate}")
@@ -161,7 +161,7 @@ import ro.brage.dodo.rs.RestApiService;
 @Stateless
 @Local(CarRestService.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class CarRestServiceBean extends RestApiService<Car, CarDTO, CarService, CarMapper> implements TodoRestApi {
+public class CarRestServiceBean extends RestApiService<Car, CarDTO, CarService, CarMapper> implements CarRestApi {
 
     @Override
     public CarDTO getByLicensePlate(String licensePlate) {
