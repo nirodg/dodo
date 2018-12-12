@@ -137,7 +137,7 @@ Remember to define the [@ApplicationPath](https://docs.oracle.com/cd/E24329_01/w
 
 ```java
 // imports
-import com.brage.dodo.rs.AbstractRestService;
+import com.brage.dodo.rs.RestApi;
 
 @Path("/cars")
 @Consumes(MediaType.APPLICATION_JSON)
