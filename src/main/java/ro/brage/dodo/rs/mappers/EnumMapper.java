@@ -26,9 +26,9 @@ package ro.brage.dodo.rs.mappers;
  * @param <Entity>
  * @param <Dto>
  */
-public abstract class EnumMapper<Entity extends Enum<?>, Dto extends Enum<?>> {
+public interface EnumMapper<Entity extends Enum<?>, Dto extends Enum<?>> {
 
-  public abstract Entity fromDto(Dto entity);
+  public Entity fromDto(Dto entity);
 
-  public abstract Dto fromEntity(Entity entity);
+  public Dto fromEntity(Entity entity);
 }

@@ -34,31 +34,31 @@ import ro.brage.dodo.rs.mappers.qualifiers.LoadEntity;
  * @param <Entity>
  * @param <DTO>
  */
-//@MapperConfig(componentModel = "cdi")
-public abstract class AdvancedMapper<Entity extends Model, DTO extends DtoModel>
+@MapperConfig(disableSubMappingMethodsGeneration = true)
+public interface AdvancedMapper<Entity extends Model, DTO extends DtoModel>
     extends SimpleMapper<Entity, DTO> {
 
 
-  public abstract void updateEntity(DTO dto, @MappingTarget Entity entity);
+  public void updateEntity(DTO dto, @MappingTarget Entity entity);
 
-  public abstract void updateDTO(@MappingTarget DTO dto, Entity entity);
+  public void updateDTO(@MappingTarget DTO dto, Entity entity);
 
-  public abstract List<DTO> findDTOs(List<Entity> entities);
+  public List<DTO> findDTOs(List<Entity> entities);
 
-  public abstract List<Entity> findEntities(List<DTO> dtos);
-
-  @LoadEntity
-  @IterableMapping(qualifiedBy = {LoadEntity.class})
-  public abstract List<DTO> loadDTOs(List<Entity> entities);
+  public List<Entity> findEntities(List<DTO> dtos);
 
   @LoadEntity
   @IterableMapping(qualifiedBy = {LoadEntity.class})
-  public abstract List<Entity> loadEntities(List<DTO> dtos);
+  public List<DTO> loadDTOs(List<Entity> entities);
 
   @LoadEntity
-  public abstract Entity load(DTO dto);
+  @IterableMapping(qualifiedBy = {LoadEntity.class})
+  public List<Entity> loadEntities(List<DTO> dtos);
 
   @LoadEntity
-  public abstract DTO load(Entity entity);
+  public Entity load(DTO dto);
+
+  @LoadEntity
+  public DTO load(Entity entity);
 
 }
