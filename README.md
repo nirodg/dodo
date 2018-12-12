@@ -14,7 +14,6 @@ import ro.brage.dodo.jpa.Model;
 
 @Entity
 @Table(name = "CAR")
-@Finder
 public class Car extends Model {
      
     @Column(name = "MAKE")
@@ -26,32 +25,42 @@ public class Car extends Model {
     @Column(name = "LICENSE_PLATE")
     private String licensePlate;
     
+    @OneToMany
+    private Set<Accessory> accesories;
+
     // Getters and Setters
 
 }
 ```
 
-For the usage of ``@Finder`` please check out [this link](#)
 
 # Define a DTO
 ```java
 // imports
 import ro.brage.dodo.rs.DtoModel;
 
-public class CarDTO extends DtoModel {
+public class CarDto extends DtoModel {
      
      private String make;
      
      private String model;
      
      private String licensePlate;
+     
+     private Set<AccessoryDto> accesories;
 
      // Getters and Setters
 }
 ```
 
-
 # Defining a mapper
+Comlex entity? or just an easy class you would like to map? THen you can choose between `AdvancedMapper` and `SimpleMapper`
+
+
+### Advanced Mapper
+
+Let's say you want to map the Car to CarDto
+
 ```java
 // imports
 import ro.brage.dodo.rs.mappers.AdvancedMapper;
@@ -64,17 +73,35 @@ public abstract class CarMapper extends AdvancedMapper<Car, CarDTO> {
 }
 ```
 
-For simple entities where you'll need only Entity < > DTO methods (from <- -> to).
-It can be an Entity with primitive fields (Strings included) or a simple Enum class.
+### SimpleMapper
+
+You need to map something less complex? Great! 
+
 
 ```java
 import ro.brage.dodo.rs.mappers.SimpleMapper;
 
 @Mapper(componentModel = "cdi")
-public abstract class ItemMapper extends SimpleMapper<Item, ItemDto> {
+public abstract class AccessoryDto extends SimpleMapper<Accessory, AccessoryDto> {
 
 }
 ```
+
+And for the sake of the explanation our `Accessory`'s entity and it's DTO will have the same fields and it's the following:
+
+```java
+public class Accessory {
+
+	private String name;
+	private double price;
+	private int quantity;
+	
+}
+
+```
+
+By default the generated mappers will be under `/target/generated-sources/java`. If you're using Eclipse make sure to add this folder as a Source Folder (`Right click -> Built Path -> Use as Source Folder`), for Netbeans this is done automatically.
+
 
 # Defining the service
 Pretty much straight forward, there are a few ways how to fetch the data and it's as follows: 
@@ -131,6 +158,7 @@ public class CarService extends EntityService<Car> {
   
 }
 ```
+Are you looking for the PersistentManager? Then call it's getter `getEntityManager()` , for more details feel free to check the abstract class `EntityService`
 
 # The API
 Remember to define the [@ApplicationPath](https://docs.oracle.com/cd/E24329_01/web.1211/e24983/configure.htm#RESTF189)
@@ -142,7 +170,7 @@ import com.brage.dodo.rs.RestApi;
 @Path("/cars")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface CarRestService extends RestApi<CarDTO> {
+public interface CarRestApi extends RestApi<CarDTO> {
 
     @GET
     @Path("/getByLicensePlate/{licensePlate}")
@@ -154,14 +182,16 @@ public interface CarRestService extends RestApi<CarDTO> {
 For more information regarding Jax-RS please check the [Oracle's documentation](https://docs.oracle.com/javaee/7/tutorial/jaxrs002.htm)
 
 # The Rest Service
+
+So let's implement the `CarRestApi`
+
 ```java
 // imports
 import ro.brage.dodo.rs.RestApiService;
 
 @Stateless
-@Local(CarRestService.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class CarRestServiceBean extends RestApiService<Car, CarDTO, CarService, CarMapper> implements CarRestApi {
+public class CarRestService extends RestApiService<Car, CarDTO, CarService, CarMapper> implements CarRestApi {
 
     @Override
     public CarDTO getByLicensePlate(String licensePlate) {
@@ -173,6 +203,8 @@ public class CarRestServiceBean extends RestApiService<Car, CarDTO, CarService, 
 
 }
 ```
+
+Also a logger is provided from the abstract layer 😉
 
 # Versioning
 
