@@ -16,21 +16,52 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.jpa.utils;
+package ro.brage.dodo.rs;
 
-import org.slf4j.Logger;
+import java.util.List;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 
 /**
- * The JPA Log provides method/s for logging with the possibility to return a new instantiated
- * Object/List if required.
- * 
+ *
  * @author Dorin Brage
+ * @param <DTO>
  */
-public class JpaLog {
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public interface RestApi<DTO extends DtoModel> {
 
-  public static Object error(Logger log, Enum<?> key, Exception e, Object type) {
-    log.error("Error happened {}:{}", key, e.getMessage());
-    return type;
-  }
+  @GET
+  @Path("/")
+  public List<DTO> getAll(@Context SecurityContext sc);
+
+  @POST
+  @Path("/")
+  public DTO create(DTO entity, @Context SecurityContext sc);
+
+  @PUT
+  @Path("/{guid}")
+  public DTO updateByGuid(@PathParam("guid") String guid, DTO entity, @Context SecurityContext sc);
+
+  @GET
+  @Path("/{guid}")
+  public DTO getByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+
+  @DELETE
+  @Path("/{guid}")
+  public boolean deleteByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+
+  @GET
+  @Path("/load/{guid}")
+  public DTO loadByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
 
 }

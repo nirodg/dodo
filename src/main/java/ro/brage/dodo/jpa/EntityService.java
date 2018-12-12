@@ -40,14 +40,15 @@ import ro.brage.dodo.jpa.utils.JpaLog;
 import ro.brage.dodo.jpa.utils.QueryParams;
 
 /**
- *
+ * The Abstract Service
+ * 
  * @author Dorin Brage
  * @param <ENTITY> the ENTITY
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractService<ENTITY extends Model> {
+public abstract class EntityService<ENTITY extends Model> {
 
-  private Logger LOG = LoggerFactory.getLogger(AbstractService.class);
+  private Logger LOG = LoggerFactory.getLogger(EntityService.class);
 
 
   protected final static String HINT_FETCH_GRAPH = "javax.persistence.fetchgraph";
@@ -177,7 +178,7 @@ public abstract class AbstractService<ENTITY extends Model> {
     try {
       return (ENTITY) query.getSingleResult();
     } catch (Exception e) {
-      JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
+      JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
     }
     return null;
   }
@@ -195,7 +196,7 @@ public abstract class AbstractService<ENTITY extends Model> {
     try {
       return query.getResultList();
     } catch (Exception e) {
-      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
+      return (List<ENTITY>) JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
           new ArrayList<>());
     }
 

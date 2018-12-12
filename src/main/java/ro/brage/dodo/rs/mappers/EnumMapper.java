@@ -16,63 +16,19 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.jpa;
-
-import java.io.Serializable;
-import java.util.Date;
+package ro.brage.dodo.rs.mappers;
 
 /**
- *
+ * Enumeration mapper
+ * 
  * @author Dorin Brage
+ *
+ * @param <Entity>
+ * @param <Dto>
  */
-public class AbstractDTOModel implements Serializable {
+public interface EnumMapper<Entity extends Enum<?>, Dto extends Enum<?>> {
 
-  private static final long serialVersionUID = -4361997507068841444L;
+  public Entity fromDto(Dto entity);
 
-  private String guid;
-  private String createdBy;
-  private String updatedBy;
-  private Date createdOn;
-  private Date updatedOn;
-
-  public String getGuid() {
-    return guid;
-  }
-
-  public void setGuid(String guid) {
-    this.guid = guid;
-  }
-
-  public String getCreatedBy() {
-    return createdBy;
-  }
-
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  public String getUpdatedBy() {
-    return updatedBy;
-  }
-
-  public void setUpdatedBy(String updatedBy) {
-    this.updatedBy = updatedBy;
-  }
-
-  public Date getCreatedOn() {
-    return createdOn;
-  }
-
-  public void setCreatedOn(Date createdOn) {
-    this.createdOn = createdOn;
-  }
-
-  public Date getUpdatedOn() {
-    return updatedOn;
-  }
-
-  public void setUpdatedOn(Date updatedOn) {
-    this.updatedOn = updatedOn;
-  }
-
+  public Dto fromEntity(Entity entity);
 }

@@ -32,7 +32,10 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.StaticMetamodel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.brage.dodo.jpa.enums.JpaErrorKeys;
@@ -43,10 +46,13 @@ import ro.brage.dodo.jpa.utils.JpaLog;
 /**
  * The Finder provides additional methods when querying an entity based on {@link CriteriaBuilder}
  * 
+ * An easier workaround would be using the {@link ro.brage.dodo.jpa.annotations.Finder}'s
+ * annotation.
+ * 
  * <pre>
  * &#64;Stateless
  * &#64;TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
- * public class CarService extends AbstractService<Car> {
+ * public class CarService extends EntityService<Car> {
  * 
  *   public Car getByLicensePlate(String licensePlate) {
  *     return new Finder<>(this).equalTo(Car_.make, make).equalTo(Car_.model, model).findItems();
@@ -64,7 +70,7 @@ public class Finder<ENTITY extends Model> {
   private final Logger LOG = LoggerFactory.getLogger(Finder.class);
 
   /** Used for accessing the injected Persistent Manager **/
-  AbstractService<ENTITY> service;
+  EntityService<ENTITY> service;
 
   EntityManager entityManager;
 
@@ -80,7 +86,7 @@ public class Finder<ENTITY extends Model> {
 
   Integer maxResults;
 
-  public Finder(AbstractService<ENTITY> service) throws Exception {
+  public Finder(EntityService<ENTITY> service) throws Exception {
 
     if (service == null) {
       throw new Exception("The service cannot be null!");
@@ -116,7 +122,7 @@ public class Finder<ENTITY extends Model> {
     try {
       return typedQuery.getSingleResult();
     } catch (Exception e) {
-      return (ENTITY) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
+      return (ENTITY) JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
     }
   }
 
@@ -146,7 +152,7 @@ public class Finder<ENTITY extends Model> {
     try {
       return (List<ENTITY>) typedQuery.getResultList();
     } catch (Exception e) {
-      return (List<ENTITY>) JpaLog.info(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
+      return (List<ENTITY>) JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
           new ArrayList<ENTITY>());
     }
 
@@ -163,7 +169,7 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> equalTo(SingularAttribute<? extends Model, ?> attribute, Object value) {
+  public Finder<ENTITY> equalsTo(Attribute<? extends Model, ?> attribute, Object value) {
     if (attribute != null && value != null) {
       Path<Date> objAttribute = root.get(attribute.getName());
       predicates.add(cb.equal(objAttribute, value));
@@ -182,7 +188,7 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> equalTo(SingularAttribute<ENTITY, ? extends Model> joinEntity,
+  public Finder<ENTITY> equalTo(Attribute<ENTITY, ? extends Model> joinEntity,
       SingularAttribute<Model, String> attribute, String value) {
     if (joinEntity != null && attribute != null && value != null) {
       Join<ENTITY, ? extends Model> rootJoinEntity = addJoin(joinEntity);
@@ -202,9 +208,10 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> notEqualTo(SingularAttribute<Model, ?> attribute, Object value) {
+  public Finder<ENTITY> notEqualsTo(Attribute<? extends Model, ?> attribute, Object value) {
     if (attribute != null && value != null) {
-      predicates.add(cb.notEqual(root.get(attribute), value));
+      Path<Object> objAttribute = root.get(attribute.getName());
+      predicates.add(cb.notEqual(objAttribute, value));
     }
     return this;
   }
@@ -220,7 +227,7 @@ public class Finder<ENTITY extends Model> {
    * @param value is the filter to be applied
    * @return this
    */
-  public Finder<ENTITY> notEqualTo(SingularAttribute<ENTITY, ? extends Model> joinEntity,
+  public Finder<ENTITY> notEqualTo(Attribute<ENTITY, ? extends Model> joinEntity,
       SingularAttribute<?, ?> attribute, Object value) {
     if (joinEntity != null && attribute != null && value != null) {
       Join<ENTITY, ? extends Model> rootJoinEntity = addJoin(joinEntity);
@@ -241,9 +248,30 @@ public class Finder<ENTITY extends Model> {
    * @param to the TO date
    * @return this
    */
-
   public Finder<ENTITY> between(SingularAttribute<? extends Model, Date> attribute, Date from,
       Date to) {
+    greaterThan(attribute, from);
+    lessThan(attribute, to);
+    return this;
+  }
+
+  /**
+   * Selects values within a given range dates - will try to cast it by checking what kind of
+   * instance is
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year between '1999-01-01' and '2017-31-12'
+   * 
+   * SELECT c FROM Car c where c.issues between '5' and '10'
+   * </pre>
+   * 
+   * @param attribute the entity's date attribute
+   * @param from
+   * @param to
+   * @return
+   */
+  public Finder<ENTITY> between(Attribute<? extends Model, ?> attribute, Object from,
+      Object to) {
     greaterThan(attribute, from);
     lessThan(attribute, to);
     return this;
@@ -438,6 +466,48 @@ public class Finder<ENTITY extends Model> {
   }
 
   /**
+   * Grater than the given Object - will try to cast it by checking what kind of instance is
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year > '1999-31-12'
+  
+   * SELECT c FROM Car c where c.doors > '3'
+   * </pre>
+   * 
+   * 
+   * @param attribute the entity's attribute
+   * @param value the Object
+   * @return
+   */
+  public Finder<ENTITY> greaterThan(Attribute<? extends Model, ?> attribute,
+      Object value) {
+    if (attribute != null && value != null) {
+      if (value instanceof Date) {
+        Path<Date> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThan(objAttribute, (Date) value));
+
+      } else if (value instanceof Double) {
+        Path<Double> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThan(objAttribute, (Double) value));
+
+      } else if (value instanceof Float) {
+        Path<Float> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThan(objAttribute, (Float) value));
+
+      } else if (value instanceof Integer) {
+        Path<Integer> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThan(objAttribute, (Integer) value));
+
+      } else if (value instanceof Long) {
+        Path<Long> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThan(objAttribute, (Long) value));
+
+      }
+    }
+    return this;
+  }
+
+  /**
    * Grater than the given Date
    *
    * <pre>
@@ -625,9 +695,52 @@ public class Finder<ENTITY extends Model> {
    * @param value the DATE value
    * @return this
    */
-  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<? extends Model, Date> attribute, Date value) {
+  public Finder<ENTITY> greaterThanOrEqualTo(SingularAttribute<? extends Model, Date> attribute,
+      Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.greaterThanOrEqualTo(root.get(attribute.getName()), (Date) value));
+    }
+    return this;
+  }
+
+  /**
+   * Grater than or equals to the given Object - will try to cast it by checking what kind of
+   * instance is
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year >= '1999-31-12'
+  
+   * SELECT c FROM Car c where c.doors >= '5'
+   * </pre>
+   * 
+   * @param attribute the entity's attribute
+   * @param value the DATE value
+   * @return this
+   */
+  public Finder<ENTITY> greaterThanOrEqualTo(Attribute<? extends Model, ?> attribute,
+      Object value) {
+    if (attribute != null && value != null) {
+      if (value instanceof Date) {
+        Path<Date> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThanOrEqualTo(objAttribute, (Date) value));
+
+      } else if (value instanceof Double) {
+        Path<Double> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThanOrEqualTo(objAttribute, (Double) value));
+
+      } else if (value instanceof Float) {
+        Path<Float> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThanOrEqualTo(objAttribute, (Float) value));
+
+      } else if (value instanceof Integer) {
+        Path<Integer> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThanOrEqualTo(objAttribute, (Integer) value));
+
+      } else if (value instanceof Long) {
+        Path<Long> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.greaterThanOrEqualTo(objAttribute, (Long) value));
+
+      }
     }
     return this;
   }
@@ -822,7 +935,7 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date
    * @return this
    */
-  public Finder<ENTITY> lessThan(SingularAttribute<? extends Model, Date> attribute, Date value) {
+  public Finder<ENTITY> lessThan(Attribute<? extends Model, ?> attribute, Date value) {
     if (attribute != null && value != null) {
       Path<Date> objAttribute = root.get(attribute.getName());
       predicates.add(cb.lessThan(objAttribute, value));
@@ -830,6 +943,114 @@ public class Finder<ENTITY extends Model> {
     return this;
   }
 
+  /**
+   * Lesser than the given Object - will try to cast it by checking what kind of instance is
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year < '1999-31-12'
+   * 
+   * SELECT c FROM Car c where c.doors < '3'
+   * </pre>
+   * 
+   * @param attribute the entity's attribute
+   * @param value the Object
+   * @return
+   */
+  public Finder<ENTITY> lessThan(Attribute<? extends Model, ?> attribute, Object value) {
+    if (attribute != null && value != null) {
+      if (value instanceof Date) {
+        Path<Date> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThan(objAttribute, (Date) value));
+
+      } else if (value instanceof Double) {
+        Path<Double> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThan(objAttribute, (Double) value));
+
+      } else if (value instanceof Float) {
+        Path<Float> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThan(objAttribute, (Float) value));
+
+      } else if (value instanceof Integer) {
+        Path<Integer> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThan(objAttribute, (Integer) value));
+
+      } else if (value instanceof Long) {
+        Path<Long> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThan(objAttribute, (Long) value));
+
+      }
+    }
+    return this;
+  }
+
+
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(Attribute<? extends Model, ?> joinEntity,
+      Attribute<? extends Model, Boolean> attribute, Boolean value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+
+    }
+    return this;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(SetAttribute<ENTITY, ? extends Model> joinEntity,
+      Attribute<? extends Model, Date> attribute, Date value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+      
+    }
+    return this;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(SetAttribute<ENTITY, ? extends Model> joinEntity,
+      Attribute<? extends Model, Float> attribute, Float value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+      
+    }
+    return this;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(SetAttribute<ENTITY, ? extends Model> joinEntity,
+      Attribute<? extends Model, Integer> attribute, Integer value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+      
+    }
+    return this;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(SetAttribute<ENTITY, ? extends Model> joinEntity,
+      Attribute<? extends Model, Long> attribute, Long value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+      
+    }
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public Finder<ENTITY> lessThan(SetAttribute<ENTITY, ? extends Model> joinEntity,
+      Attribute<? extends Model, String> attribute, String value) {
+    if (joinEntity != null && attribute != null && value != null) {
+      Join<ENTITY, ? extends Model> rootJoinEntity = addJoin((Attribute) joinEntity);
+      predicates.add(cb.lessThan(rootJoinEntity.get(attribute.getName()), value));
+
+    }
+    return this;
+  }
+
+  
   /**
    * Lesser than the given Date
    *
@@ -1017,10 +1238,51 @@ public class Finder<ENTITY extends Model> {
    * @param value the Date value
    * @return this
    */
-
-  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<? extends Model, Date> attribute, Date value) {
+  public Finder<ENTITY> lesserThanOrEquals(SingularAttribute<? extends Model, Date> attribute,
+      Date value) {
     if (attribute != null && value != null) {
       predicates.add(cb.lessThanOrEqualTo(root.get(attribute.getName()), (Date) value));
+    }
+    return this;
+  }
+
+  /**
+   * Lesser or equals to the given Object - will try to cast it by checking what kind of instance is
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year <= '1999-31-12'
+  
+   * SELECT c FROM Car c where c.doors <= '5'
+   * </pre>
+   * 
+   * @param attribute the entity's attribute
+   * @param value the Object value
+   * @return this
+   */
+  public Finder<ENTITY> lesserThanOrEquals(Attribute<? extends Model, ?> attribute,
+      Object value) {
+    if (attribute != null && value != null) {
+      if (value instanceof Date) {
+        Path<Date> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThanOrEqualTo(objAttribute, (Date) value));
+
+      } else if (value instanceof Double) {
+        Path<Double> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThanOrEqualTo(objAttribute, (Double) value));
+
+      } else if (value instanceof Float) {
+        Path<Float> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThanOrEqualTo(objAttribute, (Float) value));
+
+      } else if (value instanceof Integer) {
+        Path<Integer> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThanOrEqualTo(objAttribute, (Integer) value));
+
+      } else if (value instanceof Long) {
+        Path<Long> objAttribute = root.get(attribute.getName());
+        predicates.add(cb.lessThanOrEqualTo(objAttribute, (Long) value));
+
+      }
     }
     return this;
   }
@@ -1229,7 +1491,7 @@ public class Finder<ENTITY extends Model> {
    * @param orderBy
    * @return
    */
-  public Finder<ENTITY> orderBy(SingularAttribute<ENTITY, ? extends Model> joinEntity,
+  public Finder<ENTITY> orderBy(Attribute<ENTITY, ? extends Model> joinEntity,
       SingularAttribute<Model, ?> attribute, OrderBy orderBy) {
 
     if (joinEntity != null && attribute != null && orderBy != null) {
@@ -1295,6 +1557,27 @@ public class Finder<ENTITY extends Model> {
     return this;
   }
 
+  /**
+   * The IN operator allows you to specify multiple values in a WHERE clause.
+   * 
+   * 
+   * <pre>
+   * SELECT c FROM Car c where c.year IN (2000,20001,2006...)
+   * </pre>
+   * 
+   * @param attribute
+   * @param values
+   * @return
+   */
+  public Finder<ENTITY> in(Attribute<? extends Model, ?> attribute, List<?> values) {
+    if (attribute != null) {
+      Map<Long, List<Object>> mapValues = Arrays.splitList(values);
+      mapValues.entrySet().forEach((map) -> {
+        predicates.add(cb.isTrue(root.get(attribute.getName()).in(map.getValue())));
+      });
+    }
+    return this;
+  }
 
   /**
    * Create a left join to the specified single-valued attribute
@@ -1305,7 +1588,7 @@ public class Finder<ENTITY extends Model> {
    * @see SingularAttribute
    */
   private Join<ENTITY, ? extends Model> addJoin(
-      SingularAttribute<ENTITY, ? extends Model> entity) {
+      Attribute<ENTITY, ? extends Model> entity) {
     return addJoin(entity, JoinType.LEFT);
   }
 
@@ -1319,7 +1602,7 @@ public class Finder<ENTITY extends Model> {
    * @see SingularAttribute
    */
   @SuppressWarnings("unchecked")
-  private Join<ENTITY, ? extends Model> addJoin(SingularAttribute<ENTITY, ? extends Model> entity,
+  private Join<ENTITY, ? extends Model> addJoin(Attribute<ENTITY, ? extends Model> entity,
       JoinType joinType) {
 
     Join<ENTITY, ? extends Model> joinEntity = null;
@@ -1327,17 +1610,15 @@ public class Finder<ENTITY extends Model> {
     LOG.info("=> Check already defined joins for the entity");
 
     if (root.getJoins().isEmpty()) {
-      return root.join(entity, joinType);
+      return root.join(entity.getName(), joinType);
     }
 
     LOG.info("=> Total Joins {}", root.getJoins().size());
 
-    String entityClassName = entity.getType().getJavaType().getSimpleName();
-
     for (Join<ENTITY, ?> join : root.getJoins()) {
       String joinClassName = join.getModel().getBindableJavaType().getSimpleName();
-      if (!joinClassName.equals(entityClassName)) {
-        joinEntity = root.join(entity, joinType);
+      if (!joinClassName.equals(entity.getName())) {
+        joinEntity = root.join(entity.getName(), joinType);
         LOG.info("=> Will join the {}", entity.getName());
       } else {
         joinEntity = (Join<ENTITY, ? extends Model>) join;
