@@ -31,7 +31,8 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 /**
- *
+ * The model class provides basic fields for persisting an entity
+ * 
  * @author Dorin Brage
  */
 @MappedSuperclass
@@ -41,13 +42,14 @@ public class Model implements Serializable {
 
   @Transient
   public final static String GUID = "guid";
-  
+
   @Id
   @Column(name = "GUID")
   private String guid;
 
   @Column(name = "CREATED_BY")
   private String createdBy;
+
   @Column(name = "UPDATED_BY")
   private String updatedBy;
 

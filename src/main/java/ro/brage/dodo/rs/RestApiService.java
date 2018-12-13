@@ -24,24 +24,24 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ro.brage.dodo.jpa.AbstractDTOModel;
-import ro.brage.dodo.jpa.AbstractService;
+import ro.brage.dodo.jpa.EntityService;
 import ro.brage.dodo.jpa.Model;
-import ro.brage.dodo.jpa.mapper.AbstractModelMapper;
+import ro.brage.dodo.rs.mappers.AdvancedMapper;
 
 /**
  * The abstract rest service bean class
  * 
  * @author Dorin Brage
+ * 
  * @param <ENTITY>
  * @param <DTO>
  * @param <SERVICE>
  * @param <MAPPER>
  */
-public abstract class AbstractRestServiceBean<ENTITY extends Model, DTO extends AbstractDTOModel, SERVICE extends AbstractService<ENTITY>, MAPPER extends AbstractModelMapper<ENTITY, DTO>>
-    implements AbstractRestService<DTO> {
+public abstract class RestApiService<ENTITY extends Model, DTO extends DtoModel, SERVICE extends EntityService<ENTITY>, MAPPER extends AdvancedMapper<ENTITY, DTO>>
+    implements RestApi<DTO> {
 
-  private Logger LOG = LoggerFactory.getLogger(AbstractRestServiceBean.class);
+  private Logger LOG = LoggerFactory.getLogger(RestApiService.class);
 
   @Inject
   private SERVICE service;
@@ -58,20 +58,20 @@ public abstract class AbstractRestServiceBean<ENTITY extends Model, DTO extends 
 
   @Override
   public DTO create(DTO entity, @Context SecurityContext sc) {
-    ENTITY data = mapEntity(entity);
-    return mapDTO(service.create(data));
+    ENTITY data = mapper.map(entity);
+    return mapper.load(service.create(data));
   }
 
   @Override
   public DTO updateByGuid(String guid, DTO entity, @Context SecurityContext sc) {
-    ENTITY data = service.updateByGuid(guid, mapper.find(entity));
-    return mapDTO(data);
+    ENTITY data = service.updateByGuid(guid, mapper.map(entity));
+    return mapper.load(service.create(data));
   }
 
   @Override
   public DTO getByGuid(String guid, @Context SecurityContext sc) {
     ENTITY data = service.findByGuid(guid);
-    return mapDTO(data);
+    return mapper.map(data);
   }
 
   @Override
@@ -82,14 +82,6 @@ public abstract class AbstractRestServiceBean<ENTITY extends Model, DTO extends 
   @Override
   public DTO loadByGuid(String guid, @Context SecurityContext sc) {
     return mapper.load(service.loadByGuid(guid));
-  }
-
-  public ENTITY mapEntity(DTO dto) {
-    return mapper.find(dto);
-  }
-
-  public DTO mapDTO(ENTITY entity) {
-    return mapper.find(entity);
   }
 
   protected SERVICE getService() {

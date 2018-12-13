@@ -19,7 +19,8 @@
 package ro.brage.dodo.jpa.enums;
 
 /**
- *
+ * This class will contain enums used during the querying of the entities
+ * 
  * @author Dorin Brage
  */
 public enum JpaErrorKeys {

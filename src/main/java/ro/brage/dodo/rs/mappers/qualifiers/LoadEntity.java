@@ -16,49 +16,22 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.jpa.mapper;
+package ro.brage.dodo.rs.mappers.qualifiers;
 
-import java.util.List;
-import org.mapstruct.IterableMapping;
-import org.mapstruct.MapperConfig;
-import org.mapstruct.MappingTarget;
-import ro.brage.dodo.jpa.AbstractDTOModel;
-import ro.brage.dodo.jpa.Model;
-import ro.brage.dodo.jpa.mapper.qualifiers.LoadEntity;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.mapstruct.Qualifier;
 
 /**
- *
+ * The Load entity is used for specifying what methods must be used during the mapping stage
+ * 
  * @author Dorin Brage
- * @param <Entity>
- * @param <DTO>
  */
-@MapperConfig(componentModel = "cdi")
-public abstract class AbstractModelMapper<Entity extends Model, DTO extends AbstractDTOModel> {
-
-  public abstract Entity find(DTO entity);
-
-  public abstract DTO find(Entity entity);
-
-  public abstract void updateEntity(DTO dto, @MappingTarget Entity entity);
-
-  public abstract void updateDTO(@MappingTarget DTO dto, Entity entity);
-
-  public abstract List<DTO> findDTOs(List<Entity> entities);
-
-  public abstract List<Entity> findEntities(List<DTO> dtos);
-
-  @LoadEntity
-  @IterableMapping(qualifiedBy= {LoadEntity.class})
-  public abstract List<DTO> loadDTOs(List<Entity> entities);
-
-  @LoadEntity
-  @IterableMapping(qualifiedBy= {LoadEntity.class})
-  public abstract List<Entity> loadEntities(List<DTO> dtos);
-
-  @LoadEntity
-  public abstract Entity load(DTO dto);
-
-  @LoadEntity
-  public abstract DTO load(Entity entity);
+@Qualifier
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.CLASS)
+public @interface LoadEntity {
 
 }
