@@ -30,10 +30,25 @@ public class DtoModel implements Serializable {
 
   private static final long serialVersionUID = -4361997507068841444L;
 
+  /**
+   * The guid
+   */
   private String guid;
+  /**
+   * By who is persisted
+   */
   private String createdBy;
+  /**
+   * By who is updated
+   */
   private String updatedBy;
+  /**
+   * When was persisted
+   */
   private Date createdOn;
+  /**
+   * When was updated
+   */
   private Date updatedOn;
 
   public String getGuid() {

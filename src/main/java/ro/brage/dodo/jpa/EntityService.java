@@ -21,6 +21,7 @@ package ro.brage.dodo.jpa;
 import java.lang.reflect.ParameterizedType;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.TransactionAttribute;
@@ -48,6 +49,9 @@ import ro.brage.dodo.jpa.utils.QueryParams;
 @SuppressWarnings("unchecked")
 public abstract class EntityService<ENTITY extends Model> {
 
+  /**
+   * logger
+   */
   private Logger LOG = LoggerFactory.getLogger(EntityService.class);
 
 
@@ -65,7 +69,7 @@ public abstract class EntityService<ENTITY extends Model> {
   protected Root<ENTITY> root;
   protected TypedQuery<ENTITY> typedQuery;
 
-  Class<ENTITY> entityClass;
+  private Class<ENTITY> entityClass;
 
   @PostConstruct
   protected void initialize() {
@@ -108,15 +112,18 @@ public abstract class EntityService<ENTITY extends Model> {
    * @param guid
    * @param dto
    * @return
+   * @throws Exception if the ENTITY is not yet persisted in the DB
    */
   @TransactionAttribute(TransactionAttributeType.REQUIRED)
-  public ENTITY updateByGuid(Object guid, ENTITY entity) {
+  public ENTITY updateByGuid(String guid, ENTITY entity) throws Exception {
     ENTITY objectToUpdate = findByGuid(guid);
-    if (objectToUpdate != null) {
-      objectToUpdate.setUpdatedBy(principal.getName());
-      return create(objectToUpdate);
+    if (objectToUpdate == null) {
+      throw new Exception("Entity cannot be updated because is not yet in the database");
     }
-    return null;
+    
+    objectToUpdate.setUpdatedBy(principal.getName());
+    objectToUpdate.setUpdatedOn(new Date());
+    return create(objectToUpdate);
   }
 
   /**
@@ -137,11 +144,23 @@ public abstract class EntityService<ENTITY extends Model> {
     }
   }
 
+  /**
+   * Load an entity and it's collections by the guid
+   * 
+   * @param guid
+   * @return the ENTITY if is found, otherwise NULL
+   */
   public ENTITY loadByGuid(String guid) {
     cq.where(cb.equal(root.get(Model.GUID), guid));
     typedQuery = entityManager.createQuery(cq);
     typedQuery.setHint(HINT_LOAD_GRAPH, entityClass.getSimpleName() + ".loadByGuid");
-    return typedQuery.getSingleResult();
+    try {
+      return typedQuery.getSingleResult();
+    } catch (Exception e) {
+      LOG.warn(e.getMessage());
+    }
+
+    return null;
   }
 
   /**
@@ -154,14 +173,29 @@ public abstract class EntityService<ENTITY extends Model> {
     return query.getResultList();
   }
 
+  /**
+   * The Entity Manager
+   * 
+   * @return
+   */
   public EntityManager getEntityManager() {
     return entityManager;
   }
 
+  /**
+   * The Criteria Builder
+   * 
+   * @return
+   */
   public CriteriaBuilder getCB() {
     return cb;
   }
 
+  /**
+   * The Root
+   * 
+   * @return
+   */
   public Root<ENTITY> getRoot() {
     return root;
   }
@@ -203,7 +237,7 @@ public abstract class EntityService<ENTITY extends Model> {
   }
 
   /**
-   * Get total nr. of items
+   * Get total number of items
    * 
    * <pre>
    * SELECT COUNT(c) FROM Car c
@@ -243,6 +277,11 @@ public abstract class EntityService<ENTITY extends Model> {
     return null;
   }
 
+  /**
+   * The entity class
+   * 
+   * @return
+   */
   public Class<ENTITY> getEntityClass() {
     return entityClass;
   }

@@ -32,7 +32,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 
 /**
- *
+ * The abstract rest api provides basic CRUD operations
+ * 
  * @author Dorin Brage
  * @param <DTO>
  */
@@ -42,26 +43,30 @@ public interface RestApi<DTO extends DtoModel> {
 
   @GET
   @Path("/")
-  public List<DTO> getAll(@Context SecurityContext sc);
+  public List<DTO> getAll(@Context SecurityContext sc) throws Exception;
 
   @POST
   @Path("/")
-  public DTO create(DTO entity, @Context SecurityContext sc);
+  public DTO create(DTO entity, @Context SecurityContext sc) throws Exception;
 
   @PUT
   @Path("/{guid}")
-  public DTO updateByGuid(@PathParam("guid") String guid, DTO entity, @Context SecurityContext sc);
+  public DTO updateByGuid(@PathParam("guid") String guid, DTO entity, @Context SecurityContext sc)
+      throws Exception;
 
   @GET
   @Path("/{guid}")
-  public DTO getByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+  public DTO getByGuid(@PathParam("guid") String guid, @Context SecurityContext sc)
+      throws Exception;
 
   @DELETE
   @Path("/{guid}")
-  public boolean deleteByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+  public boolean deleteByGuid(@PathParam("guid") String guid, @Context SecurityContext sc)
+      throws Exception;
 
   @GET
   @Path("/load/{guid}")
-  public DTO loadByGuid(@PathParam("guid") String guid, @Context SecurityContext sc);
+  public DTO loadByGuid(@PathParam("guid") String guid, @Context SecurityContext sc)
+      throws Exception;
 
 }

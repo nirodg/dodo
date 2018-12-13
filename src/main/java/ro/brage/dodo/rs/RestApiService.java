@@ -41,6 +41,9 @@ import ro.brage.dodo.rs.mappers.AdvancedMapper;
 public abstract class RestApiService<ENTITY extends Model, DTO extends DtoModel, SERVICE extends EntityService<ENTITY>, MAPPER extends AdvancedMapper<ENTITY, DTO>>
     implements RestApi<DTO> {
 
+  /**
+   * logger
+   */
   private Logger LOG = LoggerFactory.getLogger(RestApiService.class);
 
   @Inject
@@ -50,48 +53,63 @@ public abstract class RestApiService<ENTITY extends Model, DTO extends DtoModel,
   private MAPPER mapper;
 
   @Override
-  public List<DTO> getAll(@Context SecurityContext sc) {
+  public List<DTO> getAll(@Context SecurityContext sc) throws Exception {
     LOG.info("calling getAll()");
     List<ENTITY> data = service.getAll();
     return mapper.findDTOs(data);
   }
 
   @Override
-  public DTO create(DTO entity, @Context SecurityContext sc) {
+  public DTO create(DTO entity, @Context SecurityContext sc) throws Exception {
     ENTITY data = mapper.map(entity);
     return mapper.load(service.create(data));
   }
 
   @Override
-  public DTO updateByGuid(String guid, DTO entity, @Context SecurityContext sc) {
+  public DTO updateByGuid(String guid, DTO entity, @Context SecurityContext sc) throws Exception {
     ENTITY data = service.updateByGuid(guid, mapper.map(entity));
     return mapper.load(service.create(data));
   }
 
   @Override
-  public DTO getByGuid(String guid, @Context SecurityContext sc) {
+  public DTO getByGuid(String guid, @Context SecurityContext sc) throws Exception {
     ENTITY data = service.findByGuid(guid);
     return mapper.map(data);
   }
 
   @Override
-  public boolean deleteByGuid(String guid, @Context SecurityContext sc) {
+  public boolean deleteByGuid(String guid, @Context SecurityContext sc) throws Exception {
     return service.deleteByGuid(guid);
   }
 
   @Override
-  public DTO loadByGuid(String guid, @Context SecurityContext sc) {
+  public DTO loadByGuid(String guid, @Context SecurityContext sc) throws Exception {
     return mapper.load(service.loadByGuid(guid));
   }
 
+  /**
+   * The Bean Service
+   * 
+   * @return
+   */
   protected SERVICE getService() {
     return service;
   }
 
+  /**
+   * The Mapper
+   * 
+   * @return
+   */
   protected MAPPER getMapper() {
     return mapper;
   }
 
+  /**
+   * The Logger
+   * 
+   * @return
+   */
   protected Logger getLogger() {
     return LOG;
   }
