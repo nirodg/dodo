@@ -16,7 +16,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.rs;
+package ro.brage.dodo.http.rs;
 
 import java.util.List;
 import javax.inject.Inject;
@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.brage.dodo.jpa.EntityService;
 import ro.brage.dodo.jpa.Model;
-import ro.brage.dodo.rs.mappers.AdvancedMapper;
+import ro.brage.dodo.http.rs.mappers.AdvancedMapper;
 
 /**
  * The abstract rest service bean class
@@ -68,6 +68,7 @@ public abstract class RestApiService<ENTITY extends Model, DTO extends DtoModel,
   @Override
   public DTO updateByGuid(String guid, DTO entity, @Context SecurityContext sc) throws Exception {
     ENTITY data = service.updateByGuid(guid, mapper.map(entity));
+    mapper.updateEntity(entity, data);
     return mapper.load(service.create(data));
   }
 

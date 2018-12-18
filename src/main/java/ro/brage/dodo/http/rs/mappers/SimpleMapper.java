@@ -16,19 +16,22 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.rs.mappers;
+package ro.brage.dodo.http.rs.mappers;
+
+import ro.brage.dodo.jpa.Model;
+import ro.brage.dodo.http.rs.DtoModel;
 
 /**
- * Enumeration mapper
+ * Simple mapper
  * 
  * @author Dorin Brage
  *
  * @param <Entity>
- * @param <Dto>
+ * @param <DTO>
  */
-public interface EnumMapper<Entity extends Enum<?>, Dto extends Enum<?>> {
+public interface SimpleMapper<Entity extends Model, DTO extends DtoModel> {
 
-  public Entity fromDto(Dto entity);
+  public Entity map(DTO entity);
 
-  public Dto fromEntity(Entity entity);
+  public DTO map(Entity entity);
 }

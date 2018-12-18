@@ -16,79 +16,52 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.rs;
+package ro.brage.dodo.http.auth;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 /**
- * The Dto Model
- * 
- * @author Dorin Brage
+ * The logged user filter
+ *
+ * @author dorin
  */
-public class DtoModel implements Serializable {
+public class LoggedUserFilter implements Filter {
 
-  private static final long serialVersionUID = -4361997507068841444L;
+    @Override
+    public void init(
+            FilterConfig filterConfig)
+            throws ServletException {
+    }
 
-  /**
-   * The guid
-   */
-  private String guid;
-  /**
-   * By who is persisted
-   */
-  private String createdBy;
-  /**
-   * By who is updated
-   */
-  private String updatedBy;
-  /**
-   * When was persisted
-   */
-  private Date createdOn;
-  /**
-   * When was updated
-   */
-  private Date updatedOn;
+    @Override
+    public void doFilter(
+            ServletRequest request,
+            ServletResponse response,
+            FilterChain filterChain)
+            throws IOException, ServletException {
 
-  public String getGuid() {
-    return guid;
-  }
+        try {
+            HttpServletRequest httpServletRequest
+                    = (HttpServletRequest) request;
 
-  public void setGuid(String guid) {
-    this.guid = guid;
-  }
+            UserSession.logIn(
+                    httpServletRequest.getRemoteUser()
+            );
 
-  public String getCreatedBy() {
-    return createdBy;
-  }
+            filterChain.doFilter(request, response);
+        } finally {
+            UserSession.logOut();
+        }
+    }
 
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  public String getUpdatedBy() {
-    return updatedBy;
-  }
-
-  public void setUpdatedBy(String updatedBy) {
-    this.updatedBy = updatedBy;
-  }
-
-  public Date getCreatedOn() {
-    return createdOn;
-  }
-
-  public void setCreatedOn(Date createdOn) {
-    this.createdOn = createdOn;
-  }
-
-  public Date getUpdatedOn() {
-    return updatedOn;
-  }
-
-  public void setUpdatedOn(Date updatedOn) {
-    this.updatedOn = updatedOn;
-  }
-
+    @Override
+    public void destroy() {
+    }
 }

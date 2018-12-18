@@ -16,22 +16,27 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.rs.mappers.qualifiers;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import org.mapstruct.Qualifier;
+package ro.brage.dodo.http.auth;
 
 /**
- * The Load entity is used for specifying what methods must be used during the mapping stage
- * 
+ * The user sessions contains relevant data regarding the current logged user
+ *
  * @author Dorin Brage
  */
-@Qualifier
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
-public @interface LoadEntity {
+public class UserSession {
 
+    private static final ThreadLocal<String> userHolder
+            = new ThreadLocal<>();
+
+    public static void logIn(String user) {
+        userHolder.set(user);
+    }
+
+    public static void logOut() {
+        userHolder.remove();
+    }
+
+    public static String get() {
+        return userHolder.get();
+    }
 }

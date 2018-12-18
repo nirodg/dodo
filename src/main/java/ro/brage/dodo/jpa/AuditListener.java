@@ -16,22 +16,33 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package ro.brage.dodo.rs.mappers;
+package ro.brage.dodo.jpa;
 
-import ro.brage.dodo.jpa.Model;
-import ro.brage.dodo.rs.DtoModel;
+import java.util.Date;
+import javax.persistence.EntityListeners;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import ro.brage.dodo.http.auth.UserSession;
 
 /**
- * Simple mapper
+ * The Audit Listener will update some of the Model's inherent fields.
  * 
- * @author Dorin Brage
- *
- * @param <Entity>
- * @param <DTO>
+ * @see EntityListeners
+ * @author dorin
  */
-public interface SimpleMapper<Entity extends Model, DTO extends DtoModel> {
-
-  public Entity map(DTO entity);
-
-  public DTO map(Entity entity);
+public class AuditListener {
+    
+    @PrePersist
+    public void setCreatedOn(Model entity) {
+        entity.setCreatedBy(UserSession.get());
+        entity.setUpdatedBy(UserSession.get());
+        entity.setCreatedOn(new Date());
+    }
+    
+    @PreUpdate
+    public void setUpdatedOn(Model entity) {
+        entity.setUpdatedBy(UserSession.get());
+        entity.setUpdatedOn(new Date());
+    }
+    
 }
