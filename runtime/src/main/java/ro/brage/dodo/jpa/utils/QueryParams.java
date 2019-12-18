@@ -18,19 +18,57 @@
  *******************************************************************************/
 package ro.brage.dodo.jpa.utils;
 
-import org.slf4j.Logger;
+import java.util.HashMap;
+import java.util.Map;
+import javax.persistence.metamodel.SingularAttribute;
 
 /**
- * The JPA Log provides method/s for logging with the possibility to return a new instantiated
- * Object/List if required.
+ * The QueryParams is an utility for the static queries
+ * <hr>
+ * The new way
+ * 
+ * <pre>
+ * List<Todo> results = getService()
+ *     .getResults("UPDATE Todo t SET t.enabled=0 where t.guid = :guid",
+ *         new QueryParams()
+ *             .addParameter(Todo_.enabled, false)
+ *             .addParameter(Todo_.guid, guid));
+ * </pre>
+ * 
+ * <hr>
+ * The old way
+ * 
+ * <pre>
+ * String updateQuery = "UPDATE Todo t SET t.enabled=0 where t.guid =  :guid";
+ * 
+ * getEntityManager()
+ *     .createQuery(updateQuery)
+ *     .setParameter("id", id).executeUpdate();
+ * </pre>
  * 
  * @author Dorin Brage
  */
-public class JpaLog {
+public class QueryParams {
 
-  public static Object error(Logger log, Enum<?> key, Exception e, Object type) {
-    log.error("Error happened {}:{}", key, e.getMessage());
-    return type;
+  Map<String, Object> data;
+
+  public QueryParams() {
+    data = new HashMap<>();
   }
 
+  public QueryParams addParameter(SingularAttribute<?, ?> key, Object value) {
+    addParameter(key.getName(), value);
+    return this;
+  }
+
+
+  public QueryParams addParameter(String key, Object value) {
+    data.put(key, value);
+    return this;
+  }
+
+
+  public Map<String, Object> getParams() {
+    return data;
+  }
 }

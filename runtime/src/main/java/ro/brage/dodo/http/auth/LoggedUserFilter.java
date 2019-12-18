@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
 package ro.brage.dodo.http.auth;
-
+/*
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -26,14 +26,14 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
+*/
 /**
  * The logged user filter
  *
  * @author dorin
  */
-public class LoggedUserFilter implements Filter {
-
+public class LoggedUserFilter { // implements Filter {
+/*
     @Override
     public void init(
             FilterConfig filterConfig)
@@ -64,4 +64,5 @@ public class LoggedUserFilter implements Filter {
     @Override
     public void destroy() {
     }
+    */
 }

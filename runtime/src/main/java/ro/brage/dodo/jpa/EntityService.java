@@ -23,8 +23,7 @@
  */
 package ro.brage.dodo.jpa;
 
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.TransactionAttribute;
@@ -36,10 +35,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ro.brage.dodo.jpa.enums.JpaErrorKeys;
-import ro.brage.dodo.jpa.utils.JpaLog;
 import ro.brage.dodo.jpa.utils.QueryParams;
 
 /**
@@ -48,12 +43,8 @@ import ro.brage.dodo.jpa.utils.QueryParams;
  * @author Dorin Brage
  * @param <ENTITY> the ENTITY
  */
+@RegisterForReflection
 public abstract class EntityService<ENTITY extends Model> {
-
-    /**
-     * logger
-     */
-    private Logger LOG = LoggerFactory.getLogger(EntityService.class);
 
     protected final static String HINT_FETCH_GRAPH = "javax.persistence.fetchgraph";
     protected final static String HINT_LOAD_GRAPH = "javax.persistence.loadgraph";
@@ -66,13 +57,17 @@ public abstract class EntityService<ENTITY extends Model> {
     protected Root<ENTITY> root;
     protected TypedQuery<ENTITY> typedQuery;
 
-    private Class<ENTITY> entityClass;
+    protected Class<ENTITY> entityClass;
+
+    public abstract String entity();
 
     @PostConstruct
-    protected void initialize() {
+    private void initialize() throws ClassNotFoundException {
 
-        entityClass = (Class<ENTITY>) ((ParameterizedType) getClass().getGenericSuperclass())
-                .getActualTypeArguments()[0];
+//        entityClass = (Class<ENTITY>) ((ParameterizedType) getClass().getGenericSuperclass())
+//                .getActualTypeArguments()[0];
+
+        entityClass = (Class<ENTITY>) Class.forName(entity());
 
         cb = entityManager.getCriteriaBuilder();
         cq = cb.createQuery(entityClass);
@@ -126,13 +121,14 @@ public abstract class EntityService<ENTITY extends Model> {
      * @return TRUE if the entity is deleted, otherwise FALSE
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public boolean deleteByGuid(Object guid) {
+    public boolean deleteByGuid(Object guid) throws Exception {
         try {
             ENTITY toDelete = findByGuid(guid);
             entityManager.remove(toDelete);
             return true;
         } catch (Exception e) {
-            LOG.error("Couldn't delete the entity {}", e.getMessage());
+            throw new Exception(e);
+        } finally {
             return false;
         }
     }
@@ -143,17 +139,17 @@ public abstract class EntityService<ENTITY extends Model> {
      * @param guid
      * @return the ENTITY if is found, otherwise NULL
      */
-    public ENTITY loadByGuid(String guid) {
+    public ENTITY loadByGuid(String guid) throws Exception {
         cq.where(cb.equal(root.get(Model.GUID), guid));
         typedQuery = entityManager.createQuery(cq);
         typedQuery.setHint(HINT_LOAD_GRAPH, entityClass.getSimpleName() + ".loadByGuid");
         try {
             return typedQuery.getSingleResult();
         } catch (Exception e) {
-            LOG.warn(e.getMessage());
+            throw new Exception(e);
+        } finally {
+            return null;
         }
-
-        return null;
     }
 
     /**
@@ -204,10 +200,14 @@ public abstract class EntityService<ENTITY extends Model> {
         Query query = createQueryParam(namedQuery, parameters);
         try {
             return (ENTITY) query.getSingleResult();
+//        } catch (Exception e) {
+//            JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
+//        }
         } catch (Exception e) {
-            JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITY, e, null);
+            throw new Exception(e);
+        } finally {
+            return null;
         }
-        return null;
     }
 
     /**
@@ -222,9 +222,14 @@ public abstract class EntityService<ENTITY extends Model> {
 
         try {
             return query.getResultList();
+//        } catch (Exception e) {
+////            return (List<ENTITY>) JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
+////                    new ArrayList<>());
+////        }
         } catch (Exception e) {
-            return (List<ENTITY>) JpaLog.error(LOG, JpaErrorKeys.FAILED_TO_FIND_ENTITIES, e,
-                    new ArrayList<>());
+            throw new Exception(e);
+        } finally {
+            return null;
         }
 
     }
@@ -270,12 +275,4 @@ public abstract class EntityService<ENTITY extends Model> {
         return null;
     }
 
-    /**
-     * The entity class
-     *
-     * @return
-     */
-    public Class<ENTITY> getEntityClass() {
-        return entityClass;
-    }
 }

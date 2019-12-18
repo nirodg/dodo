@@ -40,7 +40,7 @@ import javax.persistence.Transient;
  * @author Dorin Brage
  */
 @MappedSuperclass
-public class Model implements Serializable {
+public abstract class Model implements Serializable {
 
     private static final long serialVersionUID = 7195951657243537422L;
 

@@ -22,11 +22,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ro.brage.dodo.http.rs.mappers.AdvancedMapper;
 import ro.brage.dodo.jpa.EntityService;
 import ro.brage.dodo.jpa.Model;
-import ro.brage.dodo.http.rs.mappers.AdvancedMapper;
 
 /**
  * The abstract rest service bean class
@@ -41,11 +39,6 @@ import ro.brage.dodo.http.rs.mappers.AdvancedMapper;
 public abstract class RestApiService<ENTITY extends Model, DTO extends DtoModel, SERVICE extends EntityService<ENTITY>, MAPPER extends AdvancedMapper<ENTITY, DTO>>
     implements RestApi<DTO> {
 
-  /**
-   * logger
-   */
-  private Logger LOG = LoggerFactory.getLogger(RestApiService.class);
-
   @Inject
   private SERVICE service;
 
@@ -54,7 +47,6 @@ public abstract class RestApiService<ENTITY extends Model, DTO extends DtoModel,
 
   @Override
   public List<DTO> getAll(@Context SecurityContext sc) throws Exception {
-    LOG.info("calling getAll()");
     List<ENTITY> data = service.getAll();
     return mapper.findDTOs(data);
   }
@@ -104,15 +96,6 @@ public abstract class RestApiService<ENTITY extends Model, DTO extends DtoModel,
    */
   protected MAPPER getMapper() {
     return mapper;
-  }
-
-  /**
-   * The Logger
-   * 
-   * @return
-   */
-  protected Logger getLogger() {
-    return LOG;
   }
 
 }
