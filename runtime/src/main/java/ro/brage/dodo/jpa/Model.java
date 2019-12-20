@@ -25,14 +25,14 @@ package ro.brage.dodo.jpa;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.PrePersist;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * The model class provides basic fields for persisting an entity
@@ -49,6 +49,8 @@ public abstract class Model implements Serializable {
 
     @Id
     @Column(name = "GUID")
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String guid;
 
     @Column(name = "CREATED_BY")
@@ -65,11 +67,10 @@ public abstract class Model implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedOn;
 
-    @PrePersist
-    public void prePersist() {
-        guid = UUID.randomUUID().toString();
-    }
-
+//    @PrePersist
+//    public void prePersist() {
+//        guid = UUID.randomUUID().toString();
+//    }
     public String getGuid() {
         return guid;
     }

@@ -23,11 +23,8 @@
  */
 package ro.brage.dodo.jpa;
 
-import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.List;
 import javax.annotation.PostConstruct;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -35,6 +32,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import ro.brage.dodo.jpa.utils.QueryParams;
 
 /**
@@ -43,32 +41,27 @@ import ro.brage.dodo.jpa.utils.QueryParams;
  * @author Dorin Brage
  * @param <ENTITY> the ENTITY
  */
-@RegisterForReflection
 public abstract class EntityService<ENTITY extends Model> {
-
+    
     protected final static String HINT_FETCH_GRAPH = "javax.persistence.fetchgraph";
     protected final static String HINT_LOAD_GRAPH = "javax.persistence.loadgraph";
-
+    
     @PersistenceContext
     private EntityManager entityManager;
-
+    
     protected CriteriaBuilder cb;
     protected CriteriaQuery<ENTITY> cq;
     protected Root<ENTITY> root;
     protected TypedQuery<ENTITY> typedQuery;
-
+    
     protected Class<ENTITY> entityClass;
-
+    
     public abstract String entity();
-
+    
     @PostConstruct
     private void initialize() throws ClassNotFoundException {
-
-//        entityClass = (Class<ENTITY>) ((ParameterizedType) getClass().getGenericSuperclass())
-//                .getActualTypeArguments()[0];
-
+        
         entityClass = (Class<ENTITY>) Class.forName(entity());
-
         cb = entityManager.getCriteriaBuilder();
         cq = cb.createQuery(entityClass);
         root = cq.from(entityClass);
@@ -80,8 +73,11 @@ public abstract class EntityService<ENTITY extends Model> {
      * @param object the ENTITY to be persisted
      * @return the object
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    @Transactional
     public ENTITY create(ENTITY object) {
+        // Quarkus & hibernate-orm does not support @PrePersist
+//        object.setGuid(UUID.randomUUID().toString());
+        
         entityManager.persist(object);
         return object;
     }
@@ -104,13 +100,13 @@ public abstract class EntityService<ENTITY extends Model> {
      * @return
      * @throws Exception if the ENTITY is not yet persisted in the DB
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    @Transactional
     public ENTITY updateByGuid(String guid, ENTITY entity) throws Exception {
         ENTITY objectToUpdate = findByGuid(guid);
         if (objectToUpdate == null) {
             throw new Exception("Entity cannot be updated because is not yet in the database");
         }
-
+        
         return create(objectToUpdate);
     }
 
@@ -120,7 +116,7 @@ public abstract class EntityService<ENTITY extends Model> {
      * @param guid the GUID
      * @return TRUE if the entity is deleted, otherwise FALSE
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    @Transactional
     public boolean deleteByGuid(Object guid) throws Exception {
         try {
             ENTITY toDelete = findByGuid(guid);
@@ -219,7 +215,7 @@ public abstract class EntityService<ENTITY extends Model> {
      */
     public List<ENTITY> getResults(String namedQuery, QueryParams parameters) {
         Query query = createQueryParam(namedQuery, parameters);
-
+        
         try {
             return query.getResultList();
 //        } catch (Exception e) {
@@ -231,7 +227,7 @@ public abstract class EntityService<ENTITY extends Model> {
         } finally {
             return null;
         }
-
+        
     }
 
     /**
@@ -244,11 +240,11 @@ public abstract class EntityService<ENTITY extends Model> {
      * @return
      */
     public long getCount() {
-
+        
         String entityName = entityClass.getSimpleName().toLowerCase();
         Query query = entityManager.createQuery(
                 "SELECT COUNT(" + entityName + ") FROM " + entityClass.getSimpleName() + " " + entityName);
-
+        
         return (long) query.getSingleResult();
     }
 
@@ -261,7 +257,7 @@ public abstract class EntityService<ENTITY extends Model> {
      */
     protected Query createQueryParam(String namedQuery, QueryParams parameters) {
         if (namedQuery != null && parameters != null) {
-
+            
             Query query
                     = getEntityManager().createNamedQuery(entityClass.getSimpleName() + "." + namedQuery);
             parameters.getParams().forEach((key, value) -> {
@@ -271,8 +267,8 @@ public abstract class EntityService<ENTITY extends Model> {
             });
             return query;
         }
-
+        
         return null;
     }
-
+    
 }

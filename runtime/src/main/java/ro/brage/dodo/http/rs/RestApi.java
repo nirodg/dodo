@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright 2018 Dorin Brage
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
@@ -15,10 +15,9 @@
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *******************************************************************************/
+ ****************************************************************************** */
 package ro.brage.dodo.http.rs;
 
-import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -27,13 +26,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.Response;
 
 /**
  * The abstract rest api provides basic CRUD operations
- * 
+ *
  * @author Dorin Brage
  * @param <DTO>
  */
@@ -41,32 +39,32 @@ import javax.ws.rs.core.SecurityContext;
 @Produces(MediaType.APPLICATION_JSON)
 public interface RestApi<DTO extends DtoModel> {
 
-  @GET
-  @Path("/")
-  public List<DTO> getAll(@Context SecurityContext sc) throws Exception;
+    @GET
+    @Path("/")
+    public Response getAll() throws Exception;
 
-  @POST
-  @Path("/")
-  public DTO create(DTO entity, @Context SecurityContext sc) throws Exception;
+    @POST
+    @Path("/")
+    public DTO create(DTO entity) throws Exception;
 
-  @PUT
-  @Path("/{guid}")
-  public DTO updateByGuid(@PathParam("guid") String guid, DTO entity, @Context SecurityContext sc)
-      throws Exception;
+    @PUT
+    @Path("/{guid}")
+    public DTO updateByGuid(@PathParam("guid") String guid, DTO entity)
+            throws Exception;
 
-  @GET
-  @Path("/{guid}")
-  public DTO getByGuid(@PathParam("guid") String guid, @Context SecurityContext sc)
-      throws Exception;
+    @GET
+    @Path("/{guid}")
+    public DTO getByGuid(@PathParam("guid") String guid)
+            throws Exception;
 
-  @DELETE
-  @Path("/{guid}")
-  public boolean deleteByGuid(@PathParam("guid") String guid, @Context SecurityContext sc)
-      throws Exception;
+    @DELETE
+    @Path("/{guid}")
+    public boolean deleteByGuid(@PathParam("guid") String guid)
+            throws Exception;
 
-  @GET
-  @Path("/load/{guid}")
-  public DTO loadByGuid(@PathParam("guid") String guid, @Context SecurityContext sc)
-      throws Exception;
+    @GET
+    @Path("/load/{guid}")
+    public DTO loadByGuid(@PathParam("guid") String guid)
+            throws Exception;
 
 }
