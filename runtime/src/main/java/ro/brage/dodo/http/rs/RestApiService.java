@@ -20,7 +20,6 @@ package ro.brage.dodo.http.rs;
 
 import java.util.List;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.mapstruct.Context;
 import ro.brage.dodo.http.rs.mappers.AdvancedMapper;
@@ -47,9 +46,9 @@ public abstract class RestApiService<ENTITY extends Model, DTO extends DtoModel,
     private MAPPER mapper;
 
     @Override
-    public Response getAll(@Context SecurityContext sc) throws Exception {
+    public List<DTO> getAll(@Context SecurityContext sc) throws Exception {
         List<ENTITY> data = service.getAll();
-        return Response.ok(mapper.findDTOs(data)).build(); 
+        return mapper.findDTOs(data);
     }
 
     @Override
