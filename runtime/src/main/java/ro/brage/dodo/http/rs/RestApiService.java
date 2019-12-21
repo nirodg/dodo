@@ -21,6 +21,8 @@ package ro.brage.dodo.http.rs;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import org.mapstruct.Context;
 import ro.brage.dodo.http.rs.mappers.AdvancedMapper;
 import ro.brage.dodo.jpa.EntityService;
 import ro.brage.dodo.jpa.Model;
@@ -45,37 +47,37 @@ public abstract class RestApiService<ENTITY extends Model, DTO extends DtoModel,
     private MAPPER mapper;
 
     @Override
-    public Response getAll() throws Exception {
+    public Response getAll(@Context SecurityContext sc) throws Exception {
         List<ENTITY> data = service.getAll();
         return Response.ok(mapper.findDTOs(data)).build(); 
     }
 
     @Override
-    public DTO create(DTO entity) throws Exception {
+    public DTO create(DTO entity, @Context SecurityContext sc) throws Exception {
         ENTITY data = mapper.map(entity);
         return mapper.load(service.create(data));
     }
 
     @Override
-    public DTO updateByGuid(String guid, DTO entity) throws Exception {
+    public DTO updateByGuid(String guid, DTO entity, @Context SecurityContext sc) throws Exception {
         ENTITY data = service.updateByGuid(guid, mapper.map(entity));
         mapper.updateEntity(entity, data);
         return mapper.load(service.create(data));
     }
 
     @Override
-    public DTO getByGuid(String guid) throws Exception {
+    public DTO getByGuid(String guid, @Context SecurityContext sc) throws Exception {
         ENTITY data = service.findByGuid(guid);
         return mapper.map(data);
     }
 
     @Override
-    public boolean deleteByGuid(String guid) throws Exception {
+    public boolean deleteByGuid(String guid, @Context SecurityContext sc) throws Exception {
         return service.deleteByGuid(guid);
     }
 
     @Override
-    public DTO loadByGuid(String guid) throws Exception {
+    public DTO loadByGuid(String guid, @Context SecurityContext sc) throws Exception {
         return mapper.load(service.loadByGuid(guid));
     }
 

@@ -28,6 +28,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import org.mapstruct.Context;
 
 /**
  * The abstract rest api provides basic CRUD operations
@@ -41,30 +43,30 @@ public interface RestApi<DTO extends DtoModel> {
 
     @GET
     @Path("/")
-    public Response getAll() throws Exception;
+    public Response getAll(@Context SecurityContext sc) throws Exception;
 
     @POST
     @Path("/")
-    public DTO create(DTO entity) throws Exception;
+    public DTO create(DTO entity, @Context SecurityContext sc) throws Exception;
 
     @PUT
     @Path("/{guid}")
-    public DTO updateByGuid(@PathParam("guid") String guid, DTO entity)
+    public DTO updateByGuid(@PathParam("guid") String guid, DTO entity, @Context SecurityContext sc)
             throws Exception;
 
     @GET
     @Path("/{guid}")
-    public DTO getByGuid(@PathParam("guid") String guid)
+    public DTO getByGuid(@PathParam("guid") String guid, @Context SecurityContext sc)
             throws Exception;
 
     @DELETE
     @Path("/{guid}")
-    public boolean deleteByGuid(@PathParam("guid") String guid)
+    public boolean deleteByGuid(@PathParam("guid") String guid, @Context SecurityContext sc)
             throws Exception;
 
     @GET
     @Path("/load/{guid}")
-    public DTO loadByGuid(@PathParam("guid") String guid)
+    public DTO loadByGuid(@PathParam("guid") String guid, @Context SecurityContext sc)
             throws Exception;
 
 }

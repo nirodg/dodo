@@ -124,8 +124,6 @@ public abstract class EntityService<ENTITY extends Model> {
             return true;
         } catch (Exception e) {
             throw new Exception(e);
-        } finally {
-            return false;
         }
     }
 
@@ -143,8 +141,6 @@ public abstract class EntityService<ENTITY extends Model> {
             return typedQuery.getSingleResult();
         } catch (Exception e) {
             throw new Exception(e);
-        } finally {
-            return null;
         }
     }
 
@@ -192,7 +188,7 @@ public abstract class EntityService<ENTITY extends Model> {
      * @param parameters the QueryParams object
      * @return a list of entities
      */
-    public ENTITY getSingleResult(String namedQuery, QueryParams parameters) {
+    public ENTITY getSingleResult(String namedQuery, QueryParams parameters) throws Exception {
         Query query = createQueryParam(namedQuery, parameters);
         try {
             return (ENTITY) query.getSingleResult();
@@ -201,8 +197,6 @@ public abstract class EntityService<ENTITY extends Model> {
 //        }
         } catch (Exception e) {
             throw new Exception(e);
-        } finally {
-            return null;
         }
     }
 
@@ -213,7 +207,7 @@ public abstract class EntityService<ENTITY extends Model> {
      * @param parameters the QueryParams object
      * @return a list of entities
      */
-    public List<ENTITY> getResults(String namedQuery, QueryParams parameters) {
+    public List<ENTITY> getResults(String namedQuery, QueryParams parameters) throws Exception {
         Query query = createQueryParam(namedQuery, parameters);
         
         try {
@@ -224,8 +218,6 @@ public abstract class EntityService<ENTITY extends Model> {
 ////        }
         } catch (Exception e) {
             throw new Exception(e);
-        } finally {
-            return null;
         }
         
     }

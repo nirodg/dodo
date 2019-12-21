@@ -29,6 +29,8 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
@@ -67,10 +69,16 @@ public abstract class Model implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedOn;
 
-//    @PrePersist
-//    public void prePersist() {
-//        guid = UUID.randomUUID().toString();
-//    }
+    @PrePersist
+    public void prePersist() {
+        //
+    }
+    
+    @PreUpdate
+    public void preUpdate(){
+        //
+    }
+    
     public String getGuid() {
         return guid;
     }
